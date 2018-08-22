@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C54C21902124453E00CC259B /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54C218F2124453E00CC259B /* Instruction.swift */; };
 		C5550468211B1BFB00DDF542 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5550467211B1BFB00DDF542 /* AppDelegate.swift */; };
 		C555046A211B1BFB00DDF542 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5550469211B1BFB00DDF542 /* ViewController.swift */; };
 		C555046D211B1BFB00DDF542 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C555046B211B1BFB00DDF542 /* Main.storyboard */; };
 		C555046F211B1BFC00DDF542 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C555046E211B1BFC00DDF542 /* Assets.xcassets */; };
 		C5550472211B1BFC00DDF542 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5550470211B1BFC00DDF542 /* LaunchScreen.storyboard */; };
 		C555047D211B1BFC00DDF542 /* virtual_machine_v2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C555047C211B1BFC00DDF542 /* virtual_machine_v2Tests.swift */; };
+		C57BAAB5212D7CC200B8DF76 /* MemoryTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */; };
+		C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +29,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C54C218F2124453E00CC259B /* Instruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
 		C5550464211B1BFB00DDF542 /* virtual-machine-v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "virtual-machine-v2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5550467211B1BFB00DDF542 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C5550469211B1BFB00DDF542 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -36,6 +40,8 @@
 		C5550478211B1BFC00DDF542 /* virtual-machine-v2Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "virtual-machine-v2Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C555047C211B1BFC00DDF542 /* virtual_machine_v2Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = virtual_machine_v2Tests.swift; sourceTree = "<group>"; };
 		C555047E211B1BFC00DDF542 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTableView.swift; sourceTree = "<group>"; };
+		C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,12 +83,11 @@
 		C5550466211B1BFB00DDF542 /* virtual-machine-v2 */ = {
 			isa = PBXGroup;
 			children = (
-				C5550467211B1BFB00DDF542 /* AppDelegate.swift */,
-				C5550469211B1BFB00DDF542 /* ViewController.swift */,
-				C555046B211B1BFB00DDF542 /* Main.storyboard */,
+				C57BAABE212D7EB200B8DF76 /* Store */,
+				C57BAABC212D7D0E00B8DF76 /* Main */,
+				C57BAABB212D7D0400B8DF76 /* Model */,
+				C57BAABA212D7CFE00B8DF76 /* Interface */,
 				C555046E211B1BFC00DDF542 /* Assets.xcassets */,
-				C5550470211B1BFC00DDF542 /* LaunchScreen.storyboard */,
-				C5550473211B1BFC00DDF542 /* Info.plist */,
 			);
 			path = "virtual-machine-v2";
 			sourceTree = "<group>";
@@ -94,6 +99,42 @@
 				C555047E211B1BFC00DDF542 /* Info.plist */,
 			);
 			path = "virtual-machine-v2Tests";
+			sourceTree = "<group>";
+		};
+		C57BAABA212D7CFE00B8DF76 /* Interface */ = {
+			isa = PBXGroup;
+			children = (
+				C555046B211B1BFB00DDF542 /* Main.storyboard */,
+				C5550470211B1BFC00DDF542 /* LaunchScreen.storyboard */,
+				C5550469211B1BFB00DDF542 /* ViewController.swift */,
+				C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */,
+				C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */,
+			);
+			name = Interface;
+			sourceTree = "<group>";
+		};
+		C57BAABB212D7D0400B8DF76 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C54C218F2124453E00CC259B /* Instruction.swift */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		C57BAABC212D7D0E00B8DF76 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				C5550467211B1BFB00DDF542 /* AppDelegate.swift */,
+				C5550473211B1BFC00DDF542 /* Info.plist */,
+			);
+			name = Main;
+			sourceTree = "<group>";
+		};
+		C57BAABE212D7EB200B8DF76 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Store;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -197,6 +238,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C57BAAB5212D7CC200B8DF76 /* MemoryTableView.swift in Sources */,
+				C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */,
+				C54C21902124453E00CC259B /* Instruction.swift in Sources */,
 				C555046A211B1BFB00DDF542 /* ViewController.swift in Sources */,
 				C5550468211B1BFB00DDF542 /* AppDelegate.swift in Sources */,
 			);
