@@ -9,13 +9,14 @@
 import UIKit
 
 final class ViewController: UIViewController {
+    @IBOutlet private var sourceTextView: UITextView!
+    @IBOutlet private var instructionsTableView: InstructionsTableView!
     @IBOutlet private var inputTextView: UITextView!
     @IBOutlet private var outputTextView: UITextView!
     @IBOutlet private var inputTextField: UITextField!
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
     }
 
     @IBAction func openFilePicker(_ sender: UIButton) {
