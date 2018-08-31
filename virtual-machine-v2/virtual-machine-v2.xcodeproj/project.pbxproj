@@ -19,6 +19,7 @@
 		C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */; };
 		C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5550487211B470400DDF542 /* InstructionsTableView.swift */; };
 		C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAABF212D7EBC00B8DF76 /* Engine.swift */; };
+		C59CA0262136C5B20033B030 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59CA0252136C5B20033B030 /* Throttler.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTableView.swift; sourceTree = "<group>"; };
 		C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCell.swift; sourceTree = "<group>"; };
 		C57BAABF212D7EBC00B8DF76 /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
+		C59CA0252136C5B20033B030 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +144,7 @@
 			isa = PBXGroup;
 			children = (
 				C57BAABF212D7EBC00B8DF76 /* Engine.swift */,
+				C59CA0252136C5B20033B030 /* Throttler.swift */,
 			);
 			name = Store;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 			files = (
 				C57BAAB5212D7CC200B8DF76 /* MemoryTableView.swift in Sources */,
 				C57BAAB3212D7C9F00B8DF76 /* InstructionCell.swift in Sources */,
+				C59CA0262136C5B20033B030 /* Throttler.swift in Sources */,
 				C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */,
 				C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */,
 				C54C21902124453E00CC259B /* Instruction.swift in Sources */,

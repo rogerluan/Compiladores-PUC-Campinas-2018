@@ -11,6 +11,7 @@ import UIKit
 
 final class InstructionsTableView : UITableView {
     var items: [Instruction] = [] { didSet { handleItemsChanged() } }
+    var index: Int = 0 { didSet { handleIndexChanged() } }
 
     // MARK: Initialization
     override func awakeFromNib() {
@@ -22,6 +23,11 @@ final class InstructionsTableView : UITableView {
     // MARK: Update
     private func handleItemsChanged() {
         reloadData()
+    }
+
+    private func handleIndexChanged() {
+        let indexPath = IndexPath(index: index)
+        scrollToRow(at: indexPath, at: .middle, animated: true)
     }
 }
 

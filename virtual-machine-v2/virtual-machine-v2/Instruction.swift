@@ -8,7 +8,7 @@
 
 import Foundation
 
-indirect enum Instruction {
+indirect enum Instruction : Hashable {
     /// s = s + 1; M[s] = k
     case loadConstant(Decimal)
     /// s = s + 1; M[s] = M[n]
@@ -25,7 +25,7 @@ indirect enum Instruction {
     case invert
     /// If (M[s-1] == 1 and M[s] == 1) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
     case and
-    /// If (M[s-1] == 1 or M[s] = 1) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
+    /// If (M[s-1] == 1 or M[s] == 1) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
     case or
     /// M[s] = 1 - M[s]
     case negate

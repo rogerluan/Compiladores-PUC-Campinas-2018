@@ -11,6 +11,7 @@ import UIKit
 final class ViewController: UIViewController {
     @IBOutlet private var sourceTextView: UITextView!
     @IBOutlet private var instructionsTableView: InstructionsTableView!
+    @IBOutlet private var memoryTableView: MemoryTableView!
 
     @IBOutlet private var inputTextView: UITextView!
     @IBOutlet private var outputTextView: UITextView!
@@ -18,6 +19,22 @@ final class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        Engine.shared.finishHandler = {
+            print("Finished executing with success.")
+        }
+        Engine.shared.readHandler = { [unowned self] in
+            self.inputTextView.isUserInteractionEnabled = true
+            self.inputTextView.becomeFirstResponder()
+        }
+        Engine.shared.printHandler = { [unowned self] value in
+            self.outputTextView.text = self.outputTextView.text.appending("\n\(value)")
+        }
+        Engine.shared.memoryChangedHandler = { [unowned self] memory in
+            self.memoryTableView.memory = memory
+        }
+        Engine.shared.programCounterChangedHandler = { [unowned self] index in
+            self.instructionsTableView.index = index
+        }
     }
 
     @IBAction func openFilePicker(_ sender: UIButton) {
@@ -47,5 +64,28 @@ final class ViewController: UIViewController {
         let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
         alert.addAction(okAction)
         present(alert, animated: true, completion: nil)
+    }
+}
+
+extension ViewController : UITextViewDelegate {
+
+    func textViewDidEndEditing(_ textView: UITextView) {
+        guard let decimal = Decimal(string: textView.text) else {
+            let alert = UIAlertController(title: NSLocalizedString("Failed to Read Value", comment: ""), message: NSLocalizedString("The value read can't be represented as a number. Please try again.", comment: ""), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: { _ in
+                textView.becomeFirstResponder()
+            })
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        Engine.shared.valueRead = decimal
+    }
+
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if text == "\n" {
+            textView.resignFirstResponder()
+        }
+        return true
     }
 }

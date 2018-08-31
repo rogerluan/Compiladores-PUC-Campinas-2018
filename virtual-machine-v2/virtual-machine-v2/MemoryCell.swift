@@ -15,7 +15,7 @@ final class MemoryCell : UITableViewCell {
     static let reuseIdentifier = "MemoryCell"
 
     var index: Int! { didSet { handleIndexChanged() } }
-    var value: Int! { didSet { handleValueChanged() } }
+    var value: Decimal! { didSet { handleValueChanged() } }
 
     // MARK: Initialization
     override func awakeFromNib() {
@@ -28,7 +28,7 @@ final class MemoryCell : UITableViewCell {
     }
 
     private func handleValueChanged() {
-        valueLabel.text = String(value)
+        valueLabel.text = "\(value)"
     }
 
     override func prepareForReuse() {

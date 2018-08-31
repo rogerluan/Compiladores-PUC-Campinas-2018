@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 final class MemoryTableView : UITableView {
-    var memory: [Int] = [] { didSet { handleMemoryChanged() } }
+    var memory: [Decimal] = [] { didSet { handleMemoryChanged() } }
 
     // MARK: Initialization
     override func awakeFromNib() {
