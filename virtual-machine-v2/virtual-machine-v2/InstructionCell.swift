@@ -20,9 +20,9 @@ final class InstructionCell : UITableViewCell {
     // MARK: Initialization
     override func awakeFromNib() {
         super.awakeFromNib()
-        // TODO: get assets
-//        breakpointButton.setImage(<#T##image: UIImage?##UIImage?#>, for: .normal)
-//        breakpointButton.setImage(<#T##image: UIImage?##UIImage?#>, for: .selected)
+        breakpointButton.setImage(#imageLiteral(resourceName: "checkbox-unchecked"), for: .normal)
+        breakpointButton.setImage(#imageLiteral(resourceName: "checkbox-checked"), for: .selected)
+        breakpointButton.adjustsImageWhenHighlighted = false
     }
 
     // MARK: Update

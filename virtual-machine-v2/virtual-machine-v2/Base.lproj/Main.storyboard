@@ -284,4 +284,7 @@
             <point key="canvasLocation" x="33.821376281112734" y="39.84375"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="checkbox-unchecked" width="24" height="24"/>
+    </resources>
 </document>
