@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C53483B9213F8AAA00017368 /* UIView+IBInspectables.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53483B8213F8AAA00017368 /* UIView+IBInspectables.swift */; };
 		C54C21902124453E00CC259B /* Instruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C54C218F2124453E00CC259B /* Instruction.swift */; };
 		C5550468211B1BFB00DDF542 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5550467211B1BFB00DDF542 /* AppDelegate.swift */; };
 		C555046A211B1BFB00DDF542 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5550469211B1BFB00DDF542 /* ViewController.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C53483B8213F8AAA00017368 /* UIView+IBInspectables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+IBInspectables.swift"; sourceTree = "<group>"; };
 		C54C218F2124453E00CC259B /* Instruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Instruction.swift; sourceTree = "<group>"; };
 		C5550464211B1BFB00DDF542 /* virtual-machine-v2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "virtual-machine-v2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5550467211B1BFB00DDF542 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				C57BAAB2212D7C9F00B8DF76 /* InstructionCell.swift */,
 				C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */,
 				C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */,
+				C53483B8213F8AAA00017368 /* UIView+IBInspectables.swift */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -256,6 +259,7 @@
 				C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */,
 				C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */,
 				C54C21902124453E00CC259B /* Instruction.swift in Sources */,
+				C53483B9213F8AAA00017368 /* UIView+IBInspectables.swift in Sources */,
 				C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */,
 				C555046A211B1BFB00DDF542 /* ViewController.swift in Sources */,
 				C5550468211B1BFB00DDF542 /* AppDelegate.swift in Sources */,
