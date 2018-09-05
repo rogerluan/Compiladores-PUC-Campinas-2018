@@ -21,6 +21,7 @@ final class Engine {
     private var i: Int = 0 { didSet { programCounterChangedHandler?(i) } }
     private lazy var throttler = Throttler(minInterval: delay)
 
+    private(set) var breakpointLines: [Int] = []
     var finishHandler: (() -> Void)? = nil
     var readHandler: (() -> Void)? = nil
     var printHandler: ((Decimal) -> Void)? = nil
@@ -32,6 +33,15 @@ final class Engine {
         let lines: [String] = text.split(separator: "\n", omittingEmptySubsequences: true).map { String($0) }
         guard let instructions = lines.failableMap({ Instruction(rawInstruction: $0) }) else { return [] }
         return instructions
+    }
+
+    func activateBreakpoint(on line: Int) {
+        breakpointLines.append(line)
+    }
+
+    func deactivateBreakpoint(on line: Int) {
+        guard let index = breakpointLines.index(of: line) else { return }
+        breakpointLines.remove(at: index)
     }
 
     func execute(instructions: [Instruction]) {

@@ -16,6 +16,7 @@ final class InstructionCell : UITableViewCell {
 
     var item: Instruction! = nil { didSet { handleItemChanged() } }
     var isBreakpointSelected : Bool { return breakpointButton.isSelected }
+    var line: Int = 0
 
     // MARK: Initialization
     override func awakeFromNib() {
@@ -28,6 +29,7 @@ final class InstructionCell : UITableViewCell {
     // MARK: Update
     private func handleItemChanged() {
         label.text = "\(item.opcode) \(item.argument1) \(item.argument2)"
+        breakpointButton.isSelected = Engine.shared.breakpointLines.contains(line)
     }
 
     override func prepareForReuse() {
@@ -39,5 +41,10 @@ final class InstructionCell : UITableViewCell {
     // MARK: Interaction
     @IBAction private func handleBreakpointSelected(sender: UIButton) {
         sender.isSelected = !sender.isSelected
+        if sender.isSelected {
+            Engine.shared.activateBreakpoint(on: line)
+        } else {
+            Engine.shared.deactivateBreakpoint(on: line)
+        }
     }
 }

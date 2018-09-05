@@ -39,6 +39,7 @@ extension InstructionsTableView : UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: InstructionCell.reuseIdentifier, for: indexPath) as! InstructionCell
+        cell.line = indexPath.row + 1 // Must be called before setting the item
         cell.item = items[indexPath.row]
         return cell;
     }
