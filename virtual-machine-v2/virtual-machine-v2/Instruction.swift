@@ -8,7 +8,7 @@
 
 import Foundation
 
-indirect enum Instruction : Hashable {
+enum Instruction : Hashable {
     /// s = s + 1; M[s] = k
     case loadConstant(Decimal)
     /// s = s + 1; M[s] = M[n]
