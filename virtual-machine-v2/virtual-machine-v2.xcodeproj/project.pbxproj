@@ -21,6 +21,9 @@
 		C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5550487211B470400DDF542 /* InstructionsTableView.swift */; };
 		C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAABF212D7EBC00B8DF76 /* Engine.swift */; };
 		C59CA0262136C5B20033B030 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59CA0252136C5B20033B030 /* Throttler.swift */; };
+		C5FA6C0E215136DA00A89C8E /* LexicalAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */; };
+		C5FA6C10215139A600A89C8E /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C0F215139A600A89C8E /* Token.swift */; };
+		C5FA6C12215139C600A89C8E /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C11215139C600A89C8E /* LexicalError.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -52,6 +55,9 @@
 		C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryCell.swift; sourceTree = "<group>"; };
 		C57BAABF212D7EBC00B8DF76 /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
 		C59CA0252136C5B20033B030 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
+		C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalAnalyzer.swift; sourceTree = "<group>"; };
+		C5FA6C0F215139A600A89C8E /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
+		C5FA6C11215139C600A89C8E /* LexicalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -129,6 +135,7 @@
 		C57BAABB212D7D0400B8DF76 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				C5FA6C0F215139A600A89C8E /* Token.swift */,
 				C54C218F2124453E00CC259B /* Instruction.swift */,
 			);
 			name = Model;
@@ -147,6 +154,8 @@
 			isa = PBXGroup;
 			children = (
 				C57BAABF212D7EBC00B8DF76 /* Engine.swift */,
+				C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */,
+				C5FA6C11215139C600A89C8E /* LexicalError.swift */,
 				C59CA0252136C5B20033B030 /* Throttler.swift */,
 			);
 			name = Store;
@@ -257,12 +266,15 @@
 				C57BAAB5212D7CC200B8DF76 /* MemoryTableView.swift in Sources */,
 				C57BAAB3212D7C9F00B8DF76 /* InstructionCell.swift in Sources */,
 				C59CA0262136C5B20033B030 /* Throttler.swift in Sources */,
+				C5FA6C12215139C600A89C8E /* LexicalError.swift in Sources */,
 				C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */,
 				C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */,
 				C54C21902124453E00CC259B /* Instruction.swift in Sources */,
 				C53483B9213F8AAA00017368 /* UIView+IBInspectables.swift in Sources */,
 				C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */,
 				C555046A211B1BFB00DDF542 /* ViewController.swift in Sources */,
+				C5FA6C0E215136DA00A89C8E /* LexicalAnalyzer.swift in Sources */,
+				C5FA6C10215139A600A89C8E /* Token.swift in Sources */,
 				C5550468211B1BFB00DDF542 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
