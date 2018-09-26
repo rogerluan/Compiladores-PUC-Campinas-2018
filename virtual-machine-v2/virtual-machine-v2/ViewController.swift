@@ -45,7 +45,29 @@ final class ViewController: UIViewController {
         // TODO: guard against lack of file
         // TODO: run the file
         // TODO: Implement different run options (e.g. step by step, or free running)
-        read()
+//        read()
+        outputTextView.text = nil
+        if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? "") {
+            do {
+                while let nextToken = try lexicalAnalyzer.readNextToken() {
+                    outputTextView.text = (outputTextView.text ?? "") + nextToken.debugDescription + "\n"
+                    print(nextToken.debugDescription)
+                }
+            } catch {
+                let errorMessage = (error as! LexicalError).message
+                outputTextView.text = (outputTextView.text ?? "") + errorMessage
+                print(errorMessage)
+                let alert = UIAlertController(title: NSLocalizedString("Lexical Error", comment: ""), message: errorMessage, preferredStyle: .alert)
+                let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+                alert.addAction(okAction)
+                present(alert, animated: true, completion: nil)
+            }
+        } else {
+            let alert = UIAlertController(title: NSLocalizedString("Lexical Error", comment: ""), message: NSLocalizedString("The file you loaded is empty.", comment: ""), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+        }
     }
 
     @IBAction func pauseOrPlay(_ sender: UIButton) {
