@@ -8,17 +8,13 @@
 
 import Foundation
 
-final class LexicalError : Error, CustomStringConvertible, CustomDebugStringConvertible {
+final class LexicalError : CompilerError {
     let message: String
-
-    init(message: String) {
+    
+    required init(message: String) {
         self.message = message
     }
 
-    // MARK: Custom String Convertible Conformance
-    var description: String { return message }
-
-    // MARK: Custom Debug String Convertible Conformance
-    var debugDescription: String { return "Lexical error: \(message)" }
+    internal var debugDescriptionPrefix: String { return "Lexical" }
 }
 
