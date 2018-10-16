@@ -39,7 +39,7 @@ struct Token : CustomDebugStringConvertible {
         case s_false
         case s_number
         case s_period
-        case s_semicolon
+        case s_semicolon // ;
         case s_comma
         case s_left_parenthesis
         case s_right_parenthesis
@@ -56,7 +56,7 @@ struct Token : CustomDebugStringConvertible {
         case s_and
         case s_or
         case s_not
-        case s_colon
+        case s_colon // :
     }
 
     // MARK: Custom Debug String Convertible Conformance
