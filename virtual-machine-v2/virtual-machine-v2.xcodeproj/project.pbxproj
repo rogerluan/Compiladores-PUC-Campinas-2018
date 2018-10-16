@@ -22,6 +22,8 @@
 		C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAABF212D7EBC00B8DF76 /* Engine.swift */; };
 		C59CA0262136C5B20033B030 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59CA0252136C5B20033B030 /* Throttler.swift */; };
 		C5B80C5F2164E03800984AC5 /* CompilerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B80C5E2164E03800984AC5 /* CompilerError.swift */; };
+		C5D51FAC215BA54600A3E7D7 /* SyntacticAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D51FAB215BA54600A3E7D7 /* SyntacticAnalyzer.swift */; };
+		C5D51FAE215BADB800A3E7D7 /* SyntacticError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D51FAD215BADB800A3E7D7 /* SyntacticError.swift */; };
 		C5FA6C0E215136DA00A89C8E /* LexicalAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */; };
 		C5FA6C10215139A600A89C8E /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C0F215139A600A89C8E /* Token.swift */; };
 		C5FA6C12215139C600A89C8E /* LexicalError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C11215139C600A89C8E /* LexicalError.swift */; };
@@ -57,6 +59,8 @@
 		C57BAABF212D7EBC00B8DF76 /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
 		C59CA0252136C5B20033B030 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 		C5B80C5E2164E03800984AC5 /* CompilerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerError.swift; sourceTree = "<group>"; };
+		C5D51FAB215BA54600A3E7D7 /* SyntacticAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntacticAnalyzer.swift; sourceTree = "<group>"; };
+		C5D51FAD215BADB800A3E7D7 /* SyntacticError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntacticError.swift; sourceTree = "<group>"; };
 		C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalAnalyzer.swift; sourceTree = "<group>"; };
 		C5FA6C0F215139A600A89C8E /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		C5FA6C11215139C600A89C8E /* LexicalError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalError.swift; sourceTree = "<group>"; };
@@ -170,6 +174,7 @@
 			isa = PBXGroup;
 			children = (
 				C5FA6C11215139C600A89C8E /* LexicalError.swift */,
+				C5D51FAD215BADB800A3E7D7 /* SyntacticError.swift */,
 				C5B80C5E2164E03800984AC5 /* CompilerError.swift */,
 			);
 			name = Errors;
@@ -186,6 +191,7 @@
 		C5D51FB22162C15B00A3E7D7 /* Syntactic */ = {
 			isa = PBXGroup;
 			children = (
+				C5D51FAB215BA54600A3E7D7 /* SyntacticAnalyzer.swift */,
 			);
 			path = Syntactic;
 			sourceTree = "<group>";
@@ -311,6 +317,7 @@
 				C59CA0262136C5B20033B030 /* Throttler.swift in Sources */,
 				C5B80C5F2164E03800984AC5 /* CompilerError.swift in Sources */,
 				C5FA6C12215139C600A89C8E /* LexicalError.swift in Sources */,
+				C5D51FAE215BADB800A3E7D7 /* SyntacticError.swift in Sources */,
 				C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */,
 				C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */,
 				C54C21902124453E00CC259B /* Instruction.swift in Sources */,
@@ -319,6 +326,7 @@
 				C555046A211B1BFB00DDF542 /* ViewController.swift in Sources */,
 				C5FA6C0E215136DA00A89C8E /* LexicalAnalyzer.swift in Sources */,
 				C5FA6C10215139A600A89C8E /* Token.swift in Sources */,
+				C5D51FAC215BA54600A3E7D7 /* SyntacticAnalyzer.swift in Sources */,
 				C5550468211B1BFB00DDF542 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
