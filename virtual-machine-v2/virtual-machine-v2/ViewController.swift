@@ -16,6 +16,19 @@ final class ViewController: UIViewController {
     @IBOutlet private var inputTextView: UITextView!
     @IBOutlet private var outputTextView: UITextView!
     @IBOutlet private var inputTextField: UITextField!
+    @IBOutlet private var debugAreaContainer: UIView!
+
+    @IBOutlet private var codeAndDebugStackView: UIStackView!
+    @IBOutlet private var codeStackView: UIStackView!
+    @IBOutlet private var mainStackView: UIStackView!
+    @IBOutlet private var debugAreaButtonsStackView: UIStackView!
+    @IBOutlet private var ioStackView: UIStackView!
+
+    @IBOutlet private var leftPanelToggleButton: UIButton!
+    @IBOutlet private var bottomPanelToggleButton: UIButton!
+    @IBOutlet private var rightPanelToggleButton: UIButton!
+    @IBOutlet private var debugAreaLeftPanelToggleButton: UIButton!
+    @IBOutlet private var debugAreaRightPanelToggleButton: UIButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,10 +48,31 @@ final class ViewController: UIViewController {
         Engine.shared.programCounterChangedHandler = { [unowned self] index in
             self.instructionsTableView.index = index
         }
+        // Set up initial layout
+        inputTextView.isHidden = true
+        debugAreaLeftPanelToggleButton.isSelected = false
+
+        instructionsTableView.isHidden = true
+        leftPanelToggleButton.isSelected = false
+
+        memoryTableView.isHidden = true
+        rightPanelToggleButton.isSelected = false
     }
 
     @IBAction func openFilePicker(_ sender: UIButton) {
-        // TODO: Open iCloud Drive picker
+        documentPicker.show(from: self)
+    }
+
+    private lazy var documentPicker = DocumentPicker { [weak self] text, error in
+        guard let self = self else { return }
+        if let text = text {
+            self.sourceTextView.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        } else {
+            let alert = UIAlertController(title: NSLocalizedString("Failed to Open Document", comment: ""), message: error?.message ?? NSLocalizedString("An unknown error occurred.", comment: ""), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            self.present(alert, animated: true, completion: nil)
+        }
     }
 
     @IBAction func run(_ sender: UIButton) {
@@ -116,6 +150,53 @@ final class ViewController: UIViewController {
         let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
         alert.addAction(okAction)
         present(alert, animated: true, completion: nil)
+    }
+
+    // MARK: Actions
+    @IBAction func toggleShowLeftPanel(_ sender: UIButton) {
+        sender.isSelected.toggle()
+        UIView.animate(withDuration: 0.25) {
+            self.instructionsTableView.isHidden.toggle()
+            self.codeStackView.layoutIfNeeded()
+        }
+    }
+
+    @IBAction func toggleShowBottomPanel(_ sender: UIButton) {
+        sender.isSelected.toggle()
+        UIView.animate(withDuration: 0.25) {
+            self.debugAreaContainer.isHidden.toggle()
+            self.codeAndDebugStackView.layoutIfNeeded()
+        }
+    }
+
+    @IBAction func toggleShowRightPanel(_ sender: UIButton) {
+        sender.isSelected.toggle()
+        UIView.animate(withDuration: 0.25) {
+            self.memoryTableView.isHidden.toggle()
+            self.mainStackView.layoutIfNeeded()
+        }
+    }
+
+    @IBAction func toggleShowDebugAreaLeftPanel(_ sender: UIButton) {
+        sender.isSelected.toggle()
+        if !sender.isSelected && outputTextView.isHidden {
+            toggleShowDebugAreaRightPanel(debugAreaRightPanelToggleButton)
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.inputTextView.isHidden.toggle()
+            self.ioStackView.layoutIfNeeded()
+        }
+    }
+
+    @IBAction func toggleShowDebugAreaRightPanel(_ sender: UIButton) {
+        sender.isSelected.toggle()
+        if !sender.isSelected && inputTextView.isHidden {
+            toggleShowDebugAreaLeftPanel(debugAreaLeftPanelToggleButton)
+        }
+        UIView.animate(withDuration: 0.25) {
+            self.outputTextView.isHidden.toggle()
+            self.ioStackView.layoutIfNeeded()
+        }
     }
 }
 
