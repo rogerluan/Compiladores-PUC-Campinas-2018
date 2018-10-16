@@ -22,6 +22,8 @@
 		C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAABF212D7EBC00B8DF76 /* Engine.swift */; };
 		C59CA0262136C5B20033B030 /* Throttler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C59CA0252136C5B20033B030 /* Throttler.swift */; };
 		C5B80C5F2164E03800984AC5 /* CompilerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B80C5E2164E03800984AC5 /* CompilerError.swift */; };
+		C5B80C612164E68B00984AC5 /* DocumentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B80C602164E68B00984AC5 /* DocumentPicker.swift */; };
+		C5B80C652164EC7000984AC5 /* DocumentPickerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5B80C642164EC7000984AC5 /* DocumentPickerError.swift */; };
 		C5D51FAC215BA54600A3E7D7 /* SyntacticAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D51FAB215BA54600A3E7D7 /* SyntacticAnalyzer.swift */; };
 		C5D51FAE215BADB800A3E7D7 /* SyntacticError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5D51FAD215BADB800A3E7D7 /* SyntacticError.swift */; };
 		C5FA6C0E215136DA00A89C8E /* LexicalAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */; };
@@ -59,6 +61,8 @@
 		C57BAABF212D7EBC00B8DF76 /* Engine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Engine.swift; sourceTree = "<group>"; };
 		C59CA0252136C5B20033B030 /* Throttler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Throttler.swift; sourceTree = "<group>"; };
 		C5B80C5E2164E03800984AC5 /* CompilerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompilerError.swift; sourceTree = "<group>"; };
+		C5B80C602164E68B00984AC5 /* DocumentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPicker.swift; sourceTree = "<group>"; };
+		C5B80C642164EC7000984AC5 /* DocumentPickerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerError.swift; sourceTree = "<group>"; };
 		C5D51FAB215BA54600A3E7D7 /* SyntacticAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntacticAnalyzer.swift; sourceTree = "<group>"; };
 		C5D51FAD215BADB800A3E7D7 /* SyntacticError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyntacticError.swift; sourceTree = "<group>"; };
 		C5FA6C0D215136DA00A89C8E /* LexicalAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LexicalAnalyzer.swift; sourceTree = "<group>"; };
@@ -134,6 +138,7 @@
 				C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */,
 				C57BAAB6212D7CCC00B8DF76 /* MemoryCell.swift */,
 				C53483B8213F8AAA00017368 /* UIView+IBInspectables.swift */,
+				C5B80C602164E68B00984AC5 /* DocumentPicker.swift */,
 			);
 			name = Interface;
 			sourceTree = "<group>";
@@ -176,6 +181,7 @@
 				C5FA6C11215139C600A89C8E /* LexicalError.swift */,
 				C5D51FAD215BADB800A3E7D7 /* SyntacticError.swift */,
 				C5B80C5E2164E03800984AC5 /* CompilerError.swift */,
+				C5B80C642164EC7000984AC5 /* DocumentPickerError.swift */,
 			);
 			name = Errors;
 			sourceTree = "<group>";
@@ -316,10 +322,12 @@
 				C57BAAB3212D7C9F00B8DF76 /* InstructionCell.swift in Sources */,
 				C59CA0262136C5B20033B030 /* Throttler.swift in Sources */,
 				C5B80C5F2164E03800984AC5 /* CompilerError.swift in Sources */,
+				C5B80C612164E68B00984AC5 /* DocumentPicker.swift in Sources */,
 				C5FA6C12215139C600A89C8E /* LexicalError.swift in Sources */,
 				C5D51FAE215BADB800A3E7D7 /* SyntacticError.swift in Sources */,
 				C57BAABD212D7D7900B8DF76 /* InstructionsTableView.swift in Sources */,
 				C57BAAB7212D7CCC00B8DF76 /* MemoryCell.swift in Sources */,
+				C5B80C652164EC7000984AC5 /* DocumentPickerError.swift in Sources */,
 				C54C21902124453E00CC259B /* Instruction.swift in Sources */,
 				C53483B9213F8AAA00017368 /* UIView+IBInspectables.swift in Sources */,
 				C57BAAC0212D7EBC00B8DF76 /* Engine.swift in Sources */,
