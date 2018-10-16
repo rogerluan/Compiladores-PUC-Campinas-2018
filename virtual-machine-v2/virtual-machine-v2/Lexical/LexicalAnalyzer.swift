@@ -41,7 +41,7 @@ final class LexicalAnalyzer {
                     }
                     character = readNextCharacter()
                     if character == nil {
-                        throw LexicalError(message: NSLocalizedString("Expected `}` but it couldn't be found in the whole file at line \(line).", comment: ""))
+                        throw LexicalError(message: NSLocalizedString("Expected `}` but it couldn't be found in the whole file.", comment: ""))
                     }
                 }
                 character = readNextCharacter()
