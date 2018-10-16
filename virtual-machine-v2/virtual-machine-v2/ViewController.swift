@@ -47,6 +47,12 @@ final class ViewController: UIViewController {
         // TODO: Implement different run options (e.g. step by step, or free running)
 //        read()
         outputTextView.text = nil
+        testSyntacticAnalyzer()
+    }
+
+    // ===========================
+    // Debugging area
+    private func testLexicalAnalyzer() {
         if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? "") {
             do {
                 while let nextToken = try lexicalAnalyzer.readNextToken() {
@@ -69,6 +75,30 @@ final class ViewController: UIViewController {
             present(alert, animated: true, completion: nil)
         }
     }
+
+    private func testSyntacticAnalyzer() {
+        if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? ""), let syntacticAnalyzer = SyntacticAnalyzer(lexicalAnalyzer: lexicalAnalyzer) {
+            do {
+                try syntacticAnalyzer.analyzeProgram()
+                outputTextView.text = NSLocalizedString("✅ Lexical and Syntactic Analysis Completed with No Errors", comment: "")
+            } catch {
+                let error = error as! CompilerError
+                outputTextView.text = (outputTextView.text ?? "") + error.message
+                print(error.message)
+                let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
+                let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+                alert.addAction(okAction)
+                present(alert, animated: true, completion: nil)
+            }
+        } else {
+            let alert = UIAlertController(title: NSLocalizedString("Lexical Error", comment: ""), message: NSLocalizedString("The file you loaded is empty.", comment: ""), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+        }
+    }
+
+    // ===========================
 
     @IBAction func pauseOrPlay(_ sender: UIButton) {
         // TODO: Detect if the current state is pause, or play, and execute the respective function
