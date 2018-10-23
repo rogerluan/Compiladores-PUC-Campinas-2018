@@ -247,6 +247,11 @@ final class SyntacticAnalyzer {
         // Not implemented yet
     }
 
+    /// Analyzes a `<chamada de função>` structure defined in the formal language grammar.
+    private func analyzeFunctionCall() throws {
+        try readNextTokenIfPossible()
+    }
+
     /// Analyzes a `<comando condicional>` structure defined in the formal language grammar.
     private func analyzeIf() throws {
         try readNextTokenIfPossible()
@@ -303,9 +308,8 @@ final class SyntacticAnalyzer {
     /// Analyzes a `<fator>` structure defined in the formal language grammar.
     private func analyzeFactor() throws {
         if token?.symbol == .s_identifier {
-            // It's a variable or a procedure
-            try analyzeProcedureCall()
-            try readNextTokenIfPossible()
+            // Must be a variable or a function
+            try analyzeFunctionCall()
         } else if token?.symbol == .s_number {
             try readNextTokenIfPossible()
         } else if token?.symbol == .s_not {
