@@ -232,6 +232,7 @@ final class ViewController: UIViewController {
         guard previousNumberOfLines != numberOfLines else { return }
         previousNumberOfLines = numberOfLines
         lineNumberTextView.text = ""
+        guard numberOfLines > 0 else { return }
         for i in 1...numberOfLines {
             lineNumberTextView.text += "\(i)\n"
         }
