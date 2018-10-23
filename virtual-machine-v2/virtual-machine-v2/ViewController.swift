@@ -10,6 +10,7 @@ import UIKit
 
 final class ViewController: UIViewController {
     @IBOutlet private var sourceTextView: UITextView!
+    @IBOutlet private var lineNumberTextView: UITextView!
     @IBOutlet private var instructionsTableView: InstructionsTableView!
     @IBOutlet private var memoryTableView: MemoryTableView!
 
@@ -30,6 +31,12 @@ final class ViewController: UIViewController {
     @IBOutlet private var debugAreaLeftPanelToggleButton: UIButton!
     @IBOutlet private var debugAreaRightPanelToggleButton: UIButton!
 
+    private var previousNumberOfLines = 0
+    private var sourceTextViewText: String? {
+        get { return sourceTextView.text }
+        set { sourceTextView.text = newValue?.trimmingCharacters(in: .whitespacesAndNewlines); handleSourceTextViewTextChanged() }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         Engine.shared.finishHandler = {
@@ -48,6 +55,7 @@ final class ViewController: UIViewController {
         Engine.shared.programCounterChangedHandler = { [unowned self] index in
             self.instructionsTableView.index = index
         }
+
         // Set up initial layout
         inputTextView.isHidden = true
         debugAreaLeftPanelToggleButton.isSelected = false
@@ -57,6 +65,16 @@ final class ViewController: UIViewController {
 
         memoryTableView.isHidden = true
         rightPanelToggleButton.isSelected = false
+
+        // Remove annoying iPad input assistant item bar
+        for textView in [ sourceTextView, lineNumberTextView ] {
+            textView?.autocorrectionType = .no
+            textView?.inputAssistantItem.leadingBarButtonGroups = []
+            textView?.inputAssistantItem.trailingBarButtonGroups = []
+        }
+        inputTextField.autocorrectionType = .no
+        inputTextField.inputAssistantItem.leadingBarButtonGroups = []
+        inputTextField.inputAssistantItem.trailingBarButtonGroups = []
     }
 
     @IBAction func openFilePicker(_ sender: UIButton) {
@@ -66,7 +84,7 @@ final class ViewController: UIViewController {
     private lazy var documentPicker = DocumentPicker { [weak self] text, error in
         guard let self = self else { return }
         if let text = text {
-            self.sourceTextView.text = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.sourceTextViewText = text
         } else {
             let alert = UIAlertController(title: NSLocalizedString("Failed to Open Document", comment: ""), message: error?.message ?? NSLocalizedString("An unknown error occurred.", comment: ""), preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -198,27 +216,67 @@ final class ViewController: UIViewController {
             self.ioStackView.layoutIfNeeded()
         }
     }
+
+    // Convenience
+    // TODO: Improve lagg when calculating the lineNumberTextView text
+    // TODO: Improve the delay that it takes to update the lineNumberTextView text when entering new blank lines
+    private func handleSourceTextViewTextChanged() {
+        let string = sourceTextViewText ?? ""
+        var numberOfLines: Int = 0
+        var index: String.Index = string.startIndex
+        while index < string.endIndex {
+            numberOfLines += 1
+            index = string.lineRange(for: index..<index).upperBound
+        }
+        // This guard statement reduces lagg.
+        guard previousNumberOfLines != numberOfLines else { return }
+        previousNumberOfLines = numberOfLines
+        lineNumberTextView.text = ""
+        for i in 1...numberOfLines {
+            lineNumberTextView.text += "\(i)\n"
+        }
+    }
 }
 
 extension ViewController : UITextViewDelegate {
 
     func textViewDidEndEditing(_ textView: UITextView) {
-        guard let decimal = Decimal(string: textView.text) else {
-            let alert = UIAlertController(title: NSLocalizedString("Failed to Read Value", comment: ""), message: NSLocalizedString("The value read can't be represented as a number. Please try again.", comment: ""), preferredStyle: .alert)
-            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: { _ in
-                textView.becomeFirstResponder()
-            })
-            alert.addAction(okAction)
-            present(alert, animated: true, completion: nil)
-            return
+        switch textView {
+        case sourceTextView: break
+        default:
+            guard let decimal = Decimal(string: textView.text) else {
+                let alert = UIAlertController(title: NSLocalizedString("Failed to Read Value", comment: ""), message: NSLocalizedString("The value read can't be represented as a number. Please try again.", comment: ""), preferredStyle: .alert)
+                let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: { _ in
+                    textView.becomeFirstResponder()
+                })
+                alert.addAction(okAction)
+                present(alert, animated: true, completion: nil)
+                return
+            }
+            Engine.shared.valueRead = decimal
         }
-        Engine.shared.valueRead = decimal
     }
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if text == "\n" {
-            textView.resignFirstResponder()
+        switch textView {
+        case sourceTextView: handleSourceTextViewTextChanged()
+        default:
+            if text == "\n" {
+                textView.resignFirstResponder()
+            }
         }
         return true
+    }
+}
+
+extension ViewController : UIScrollViewDelegate {
+
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        switch scrollView {
+        case sourceTextView:
+            // Make the line number follow the content offset of the source text view
+            lineNumberTextView.contentOffset = sourceTextView.contentOffset
+        default: break
+        }
     }
 }
