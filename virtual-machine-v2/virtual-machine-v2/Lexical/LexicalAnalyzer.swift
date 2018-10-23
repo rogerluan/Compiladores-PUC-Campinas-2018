@@ -36,7 +36,7 @@ final class LexicalAnalyzer {
         while !didReachEOF && (character == "{" || character.isWhitespace) {
             if character == "{" {
                 while !didReachEOF && character != "}" {
-                    if character == "\r\n" {
+                    if character == "\r\n" || character == "\n" {
                         line += 1
                     }
                     character = readNextCharacter()
@@ -47,7 +47,7 @@ final class LexicalAnalyzer {
                 character = readNextCharacter()
             }
             while !didReachEOF && character.isWhitespace {
-                if character == "\r\n" {
+                if character == "\r\n" || character == "\n" {
                     line += 1
                 }
                 character = readNextCharacter()
