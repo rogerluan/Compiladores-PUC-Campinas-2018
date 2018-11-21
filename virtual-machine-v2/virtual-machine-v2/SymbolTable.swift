@@ -36,7 +36,9 @@ final class SymbolTable {
             case .local:
                 // Since the splitting is limited to 1 split, this returns [ArraySlice<Entry>] of max count of 2, the first being the
                 // local stack, and the second, if existent, consists of all the "other" stacks.
-                let localAndOtherStacks = stack.split(maxSplits: 1, omittingEmptySubsequences: false) {
+                stack.reverse() // Reverse because the method below splits starting from the first (as in a FIFO), and we need to split starting from last (as in a LIFO)
+                defer { stack.reverse() } // Revert the reversion as a last command
+                let localAndOtherStacks = stack.splitAt {
                     guard let markableEntry = $0 as? Markable else { return false }
                     return markableEntry.isMarked
                 }
