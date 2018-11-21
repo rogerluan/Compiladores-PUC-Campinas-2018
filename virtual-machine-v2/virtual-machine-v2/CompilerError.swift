@@ -13,7 +13,7 @@ protocol CompilerError : Error, CustomStringConvertible, CustomDebugStringConver
     var title: String { get }
     var debugDescriptionPrefix: String { get }
 
-    init(message: String)
+    init(message: String, file: StaticString, line: UInt)
 }
 
 extension CompilerError {

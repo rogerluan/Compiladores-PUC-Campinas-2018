@@ -11,7 +11,9 @@ import Foundation
 final class LexicalError : CompilerError {
     let message: String
     
-    required init(message: String) {
+    required init(message: String, file: StaticString = #file, line: UInt = #line) {
+        let filename = file.description.split(separator: "/").last
+        print("Debug error: " + message + " in file \(filename ?? "`unknown`") at line \(line)")
         self.message = message
     }
 
