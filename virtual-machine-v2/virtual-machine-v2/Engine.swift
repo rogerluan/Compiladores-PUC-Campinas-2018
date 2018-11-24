@@ -197,6 +197,23 @@ final class Engine {
         case .return:
             nextInstructionIndex = Int(exactly: memory[s] as NSNumber)!
             s -= 1
+        case .returnFunction(let memoryHead, let length):
+            // Save the function value in an auxiliary variable
+            let functionReturnValue = memory[s]
+            s -= 1
+            // Perform the same action as dealloc, if needed
+            if let memoryHead = memoryHead, let length = length {
+                for k in stride(from: length - 1, through: 0, by: -1) {
+                    setValue(memory[s], atIndex: memoryHead + k)
+                    s -= 1
+                }
+            }
+            // Perform same action as return
+            nextInstructionIndex = Int(exactly: memory[s] as NSNumber)!
+            s -= 1
+            // Perform same action as loadConstant(functionReturnValue), to put the function return value back into the top of the stack
+            s += 1
+            setValue(functionReturnValue, atIndex: s)
         }
         i = nextInstructionIndex
         try executeNextInstruction()
@@ -224,7 +241,7 @@ final class Engine {
             memory[index] = value
         } else {
             // Memory is not allocated yet, let's do it now.
-            // NOTE: This assumes we're simply appending a new value (i.e. the index is just 1 above the current indices)
+            // NOTE: This assumes we're simply appending a new value (i.e. the index is just 1 above the current indices), which's fine, given the current implementation.
             memory.append(value)
         }
     }

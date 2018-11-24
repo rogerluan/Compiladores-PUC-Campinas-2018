@@ -65,6 +65,8 @@ enum Instruction : Hashable {
     case call(label: String)
     /// Return from a procedure.
     case `return`
+    /// Return from a function. The parameters are the same as the dealloc's, and only present if the function did allocate variables.
+    case returnFunction(memoryHead: Int?, length: Int?)
 
     init?(rawInstruction: String) {
         let sanitizedInstruction = rawInstruction.replacingOccurrences(of: ",", with: " ")
@@ -114,6 +116,12 @@ enum Instruction : Hashable {
             guard let label = components[safe: 1] else { return nil }
             self = .call(label: label)
         case "RETURN": self = .return
+        case "RETURNF":
+            if let headString = components[safe: 1], let memoryHead = Int(headString), let lengthString = components[safe: 2], let length = Int(lengthString) {
+                self = .returnFunction(memoryHead: memoryHead, length: length)
+            } else {
+                self = .returnFunction(memoryHead: nil, length: nil)
+            }
         default:
             if components[safe: 1]?.uppercased() == "NULL" {
                 // The format of this instruction is non-standard (e.g. "L2 NULL"), so it needs special handling
@@ -154,6 +162,7 @@ enum Instruction : Hashable {
         case .dealloc: return "DALLOC"
         case .call: return "CALL"
         case .return: return "RETURN"
+        case .returnFunction: return "RETURNF"
         }
     }
 
@@ -167,6 +176,7 @@ enum Instruction : Hashable {
         case .null(let label): return label
         case .alloc(let memoryHead, _): return String(memoryHead)
         case .dealloc(let memoryHead, _): return String(memoryHead)
+        case .returnFunction(let memoryHead, _): return memoryHead != nil ? String(memoryHead!) : nil
         case .call(let instructionPoint): return String(instructionPoint)
         case .add, .subtract, .multiply, .divide, .invert, .and, .or, .negate,
              .compareLesserThan, .compareGreaterThan, .compareEqual, .compareDifferent,
@@ -179,6 +189,7 @@ enum Instruction : Hashable {
         switch self {
         case .alloc(_, let length): return String(length)
         case .dealloc(_, let length): return String(length)
+        case .returnFunction(_, let length): return length != nil ? String(length!) : nil
         case .loadConstant, .loadValue, .add, .subtract, .multiply, .divide,
              .invert, .and, .or, .negate, .compareLesserThan, .compareGreaterThan,
              .compareEqual, .compareDifferent, .compareLesserThanOrEqualTo,
