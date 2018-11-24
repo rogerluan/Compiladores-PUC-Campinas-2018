@@ -73,10 +73,12 @@ final class FunctionEntry : TypedEntry, CallableEntry, Markable {
 final class VariableEntry : TypedEntry {
     var lexeme: String
     var type: Type!
+    var index: Int
 
-    init(lexeme: String, type: Type?) {
+    init(lexeme: String, type: Type?, index: Int) {
         self.lexeme = lexeme
         self.type = type
+        self.index = index
     }
 }
 

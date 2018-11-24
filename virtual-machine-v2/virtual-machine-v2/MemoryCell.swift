@@ -11,11 +11,13 @@ import UIKit
 final class MemoryCell : UITableViewCell {
     @IBOutlet private var indexLabel: UILabel!
     @IBOutlet private var valueLabel: UILabel!
+    @IBOutlet private var indicatorImageView: UIImageView!
 
     static let reuseIdentifier = "MemoryCell"
 
     var index: Int! { didSet { handleIndexChanged() } }
     var value: Decimal! { didSet { handleValueChanged() } }
+    var isCurrentIndex: Bool = false { didSet { handleIsCurrentIndexChanged() } }
 
     // MARK: Initialization
     override func awakeFromNib() {
@@ -24,16 +26,21 @@ final class MemoryCell : UITableViewCell {
 
     // MARK: Update
     private func handleIndexChanged() {
-        indexLabel.text = String(index + 1)
+        indexLabel.text = String(index)
     }
 
     private func handleValueChanged() {
-        valueLabel.text = "\(value)"
+        valueLabel.text = "\(value!)"
+    }
+
+    private func handleIsCurrentIndexChanged() {
+        indicatorImageView.image = isCurrentIndex ? #imageLiteral(resourceName: "checkbox-checked") : nil
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        indexLabel.text = ""
-        valueLabel.text = ""
+        indexLabel.text = nil
+        valueLabel.text = nil
+        indicatorImageView.image = nil
     }
 }

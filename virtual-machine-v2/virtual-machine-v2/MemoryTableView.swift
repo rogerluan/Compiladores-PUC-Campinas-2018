@@ -10,7 +10,6 @@ import Foundation
 import UIKit
 
 final class MemoryTableView : UITableView {
-    var memory: [Decimal] = [] { didSet { handleMemoryChanged() } }
 
     // MARK: Initialization
     override func awakeFromNib() {
@@ -20,7 +19,7 @@ final class MemoryTableView : UITableView {
     }
 
     // MARK: Update
-    private func handleMemoryChanged() {
+    func handleMemoryChanged() {
         reloadData()
     }
 }
@@ -28,13 +27,14 @@ final class MemoryTableView : UITableView {
 extension MemoryTableView : UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return memory.count
+        return Engine.shared.memory.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MemoryCell.reuseIdentifier, for: indexPath) as! MemoryCell
-        cell.value = memory[indexPath.row]
+        cell.value = Engine.shared.memory[indexPath.row]
         cell.index = indexPath.row
+        cell.isCurrentIndex = indexPath.row == Engine.shared.s
         return cell;
     }
 }

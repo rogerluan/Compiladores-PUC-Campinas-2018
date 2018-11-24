@@ -18,10 +18,10 @@ final class TypeAnalyzer {
         debugInputString += "\(term.lexeme) "
         var op: TokenType? = nil
         switch term.symbol {
-        case .s_number: output.append(TokenType.operand(term.lexeme)) // Done
-        case .s_identifier: output.append(TokenType.operand(term.lexeme)) // Done
-        case .s_true: output.append(TokenType.operand(term.lexeme)) // Done
-        case .s_false: output.append(TokenType.operand(term.lexeme)) // Done
+        case .s_number: output.append(TokenType.operand(term)) // Done
+        case .s_identifier: output.append(TokenType.operand(term)) // Done
+        case .s_true: output.append(TokenType.operand(term)) // Done
+        case .s_false: output.append(TokenType.operand(term)) // Done
         case .s_left_parenthesis: op = .leftParenthesis // Done
         case .s_right_parenthesis: op = .rightParenthesis // Done
         case .s_greater: op = .operator(.greater)
@@ -94,84 +94,14 @@ final class TypeAnalyzer {
         print("Before: " + debugInputString)
         let result = output
         print("After: " + output.reduce("") { $0 + "\($1) " })
-        resetAnalyzer()
+        reset()
         return result
     }
 
     // TODO: Evaluate if this is necessary, as opposed to really creating a new object and initializing it again in the SyntacticAnalyzer file.
-    private func resetAnalyzer() {
+    func reset() {
         operatorStack.removeAll()
         output.removeAll()
         debugInputString = ""
-    }
-
-    // MARK: Nested Types
-    enum PrecedenceGroup : Int {
-        case unary = 200
-        case multiplication = 180
-        case sum = 160
-        case comparison = 140
-        case and = 120
-        case or = 100
-    }
-
-    enum Operator : CustomStringConvertible, Comparable {
-        static func < (lhs: Operator, rhs: Operator) -> Bool {
-            return lhs.precedence.rawValue < rhs.precedence.rawValue
-        }
-
-        case unaryPlus, unaryMinus, not
-        case multiplication, division
-        case sum, subtraction
-        case greater, lesser, greaterThanOrEqualTo, lesserThanOrEqualTo, equal, different
-        case and
-        case or
-
-        var precedence: PrecedenceGroup {
-            switch self {
-            case .unaryPlus, .unaryMinus, .not: return .unary
-            case .multiplication, .division: return .multiplication
-            case .sum, .subtraction: return .sum
-            case .greater, .lesser, .greaterThanOrEqualTo, .lesserThanOrEqualTo, .equal, .different: return .comparison
-            case .and: return .and
-            case .or: return .or
-            }
-        }
-
-        var description: String {
-            switch self {
-            case .unaryPlus: return " u+"
-            case .unaryMinus: return " u-"
-            case .not: return " !"
-            case .multiplication: return " * "
-            case .division: return " / "
-            case .sum: return " + "
-            case .subtraction: return " - "
-            case .greater: return " > "
-            case .lesser: return " < "
-            case .greaterThanOrEqualTo: return " >= "
-            case .lesserThanOrEqualTo: return " <= "
-            case .equal: return " == "
-            case .different: return " != "
-            case .and: return " && "
-            case .or: return " | "
-            }
-        }
-    }
-
-    enum TokenType : CustomStringConvertible {
-        case leftParenthesis
-        case rightParenthesis
-        case `operator`(Operator)
-        case operand(String) // FIXME: Use something better to identify the operand, like the Token itself
-
-        var description: String {
-            switch self {
-            case .leftParenthesis: return "("
-            case .rightParenthesis: return ")"
-            case .operator(let op): return op.description
-            case .operand(let value): return "\(value)"
-            }
-        }
     }
 }

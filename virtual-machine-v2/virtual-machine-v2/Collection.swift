@@ -37,3 +37,24 @@ extension Collection {
         return result
     }
 }
+
+extension Sequence {
+
+    /// Returns an `Array` containing the results of mapping `transform` over `self`. Returns `nil` if `transform` returns `nil` at any point.
+    func failableMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T]? {
+        var result: [T] = []
+        for element in self {
+            guard let transformedElement = try transform(element) else { return nil }
+            result.append(transformedElement)
+        }
+        return result
+    }
+}
+
+extension Collection {
+
+    /// Returns the element at the specified index if it is within bounds, otherwise nil.
+    subscript (safe index: Index) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}

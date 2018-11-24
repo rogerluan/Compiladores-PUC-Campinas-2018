@@ -12,6 +12,7 @@ import UIKit
 final class InstructionsTableView : UITableView {
     var items: [Instruction] = [] { didSet { handleItemsChanged() } }
     var index: Int = 0 { didSet { handleIndexChanged() } }
+    var lineStoppedAt: Int = -1 { didSet { handleLineStoppedChanged() } }
 
     // MARK: Initialization
     override func awakeFromNib() {
@@ -22,11 +23,15 @@ final class InstructionsTableView : UITableView {
 
     // MARK: Update
     private func handleItemsChanged() {
-        reloadData()
+        reloadData() // Inefficient but whatever (for now)
+    }
+
+    private func handleLineStoppedChanged() {
+        reloadData() // Inefficient but whatever (for now)
     }
 
     private func handleIndexChanged() {
-        let indexPath = IndexPath(index: index)
+        let indexPath = IndexPath(row: index, section: 0)
         scrollToRow(at: indexPath, at: .middle, animated: true)
     }
 }
@@ -39,8 +44,9 @@ extension InstructionsTableView : UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: InstructionCell.reuseIdentifier, for: indexPath) as! InstructionCell
-        cell.line = indexPath.row + 1 // Must be called before setting the item
+        cell.line = indexPath.row // Must be called before setting the item
         cell.item = items[indexPath.row]
+        cell.backgroundColor = indexPath.row == lineStoppedAt ? UIColor.blue.withAlphaComponent(0.2) : .clear
         return cell;
     }
 }

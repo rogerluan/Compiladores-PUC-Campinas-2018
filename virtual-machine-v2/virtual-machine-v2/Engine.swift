@@ -7,27 +7,28 @@
 //
 
 import Foundation
+import UIKit
 
 final class Engine {
     static let shared = Engine()
-    ///
-    private var memory = Array<Decimal>(repeating: 0, count: 2048)
-    /// Program counter
-    private var pc: [Instruction] = []
+    /// A stack that represents the memory of the virtual machine.
+    var memory: [Decimal] = [] { didSet { memoryChangedHandler?() } } // Public because it's used as the MemoryTableView's data source.
+    /// Program counter, and whether it has a breakpoint or not
+    private var pc: [(Instruction, Bool)] = []
     private var delay: TimeInterval = 1
     /// Memory index.
-    private var s: Int = 0 { didSet { memoryChangedHandler?(memory) } }
+    var s: Int = 0 { didSet { memoryChangedHandler?() } }
     /// Program conter index.
     private var i: Int = 0 { didSet { programCounterChangedHandler?(i) } }
     private lazy var throttler = Throttler(minInterval: delay)
+    private var labelMap: [String:Int] = [:]
 
-    private(set) var breakpointLines: [Int] = []
     var finishHandler: (() -> Void)? = nil
     var readHandler: (() -> Void)? = nil
     var printHandler: ((Decimal) -> Void)? = nil
-    var memoryChangedHandler: (([Decimal]) -> Void)? = nil
+    var memoryChangedHandler: (() -> Void)? = nil
     var programCounterChangedHandler: ((Int) -> Void)? = nil
-    var valueRead: Decimal? = nil { didSet { handleValueRead() } }
+    var executionPausedHandler: ((Int) -> Void)? = nil
 
     func process(text: String) -> [Instruction] {
         let lines: [String] = text.split(separator: "\n", omittingEmptySubsequences: true).map { String($0) }
@@ -35,37 +36,54 @@ final class Engine {
         return instructions
     }
 
-    func activateBreakpoint(on line: Int) {
-        breakpointLines.append(line)
+    func setBreakpoint(active: Bool, at line: Int) {
+        guard pc.indices.contains(line) else { return }
+        pc[line].1 = active
     }
 
-    func deactivateBreakpoint(on line: Int) {
-        guard let index = breakpointLines.index(of: line) else { return }
-        breakpointLines.remove(at: index)
+    func hasBreakpoint(at line: Int) -> Bool {
+        guard pc.indices.contains(line) else { return false }
+        return pc[line].1
     }
 
-    func execute(instructions: [Instruction]) {
-        pc = instructions
-        executeNextInstruction()
+    func execute(instructions: [Instruction]) throws {
+        reset()
+        // Populate the label map
+        for (index, instruction) in instructions.enumerated() {
+            switch instruction {
+            case .null(let label): labelMap[label] = index + 1 // Line numbers start at 0
+            default: break
+            }
+        }
+        let breakpoints = Array(repeating: false, count: instructions.count)
+        pc = Array(zip(instructions, breakpoints))
+        try executeNextInstruction()
     }
 
-    private func executeNextInstruction() {
-        throttler.throttle {
-            let nextInstruction = self.pc[self.i]
-            self.execute(instruction: nextInstruction)
-            self.i += 1
+    func executeNextInstruction() throws {
+        let nextInstruction = pc[i]
+        if nextInstruction.1 {
+            // This instruction has a breakpoint, wait to execute it
+            executionPausedHandler?(i)
+        } else {
+            try execute(instruction: nextInstruction.0)
         }
     }
 
-    private func execute(instruction: Instruction) {
+    func continueExecution() throws {
+        let nextInstruction = pc[i]
+        try execute(instruction: nextInstruction.0)
+    }
+
+    private func execute(instruction: Instruction) throws {
         var nextInstructionIndex = i + 1
         switch instruction {
         case .loadConstant(let constant):
             s += 1
-            memory[s] = constant
+            setValue(constant, atIndex: s)
         case .loadValue(let memoryIndex):
             s += 1
-            memory[s] = memory[memoryIndex]
+            setValue(memory[memoryIndex], atIndex: s)
         case .add:
             memory[s - 1] += memory[s]
             s -= 1
@@ -79,78 +97,84 @@ final class Engine {
             memory[s - 1] /= memory[s]
             s -= 1
         case .invert:
-            memory[s] = -memory[s]
+            setValue(-memory[s], atIndex: s)
         case .and:
             if memory[s - 1] == 1 && memory[s] == 1 {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .or:
             if memory[s - 1] == 1 || memory[s] == 1 {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .negate:
-            memory[s] = 1 - memory[s]
+            setValue(1 - memory[s], atIndex: s)
         case .compareLesserThan:
             if memory[s - 1] < memory[s] {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .compareGreaterThan:
             if memory[s - 1] > memory[s] {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .compareEqual:
             if memory[s - 1] == memory[s] {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .compareDifferent:
             if memory[s - 1] != memory[s] {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .compareLesserThanOrEqualTo:
-            if memory[s - 1] <=  memory[s] {
-                memory[s - 1] = 1
+            if memory[s - 1] <= memory[s] {
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .compareGreaterThanOrEqualTo:
             if memory[s - 1] >= memory[s] {
-                memory[s - 1] = 1
+                setValue(1, atIndex: s - 1)
             } else {
-                memory[s - 1] = 0
+                setValue(0, atIndex: s - 1)
             }
             s -= 1
         case .start: s = -1
-        case .halt: finishHandler?()
+        case .halt:
+            finishHandler?()
+            return
         case .assign(let memoryIndex):
-            memory[memoryIndex] = memory[s]
+            setValue(memory[s], atIndex: memoryIndex)
             s -= 1
-        case .jump(let instructionIndex): nextInstructionIndex = instructionIndex
-        case .jumpIfFalse(let instructionIndex):
+        case .jump(let label):
+            guard let instructionIndex = labelMap[label] else { throw RuntimeError(message: String(format: NSLocalizedString("Internal error: label %@ was being accessed but was never declared.", comment: ""), label)) }
+            nextInstructionIndex = instructionIndex
+        case .jumpIfFalse(let label):
             if memory[s] == 0 {
+                guard let instructionIndex = labelMap[label] else { throw RuntimeError(message: String(format: NSLocalizedString("Internal error: label %@ was being accessed but was never declared.", comment: ""), label)) }
                 nextInstructionIndex = instructionIndex
             }
             s -= 1
-        case .null: break
+        case .null: break // No-op
         case .read:
+            s += 1
             readHandler?()
             return
         case .print:
@@ -159,44 +183,66 @@ final class Engine {
         case .alloc(let memoryHead, let length):
             for k in 0...(length - 1) {
                 s += 1
-                memory[s] = memory[memoryHead + k]
+                setValue(memory[safe: memoryHead + k] ?? 0, atIndex: s)
             }
         case .dealloc(let memoryHead, let length):
-            for k in (length - 1)...0 {
-                memory[s] = memory[memoryHead + k]
+            for k in stride(from: length - 1, through: 0, by: -1) {
+                setValue(memory[s], atIndex: memoryHead + k)
                 s -= 1
             }
-        case .call(let instructionIndex):
+        case .call(let label):
             s += 1
-            memory[s] = Decimal(i + 1)
-            nextInstructionIndex = instructionIndex
+            setValue(Decimal(i + 1), atIndex: s)
+            nextInstructionIndex = labelMap[label]!
         case .return:
             nextInstructionIndex = Int(exactly: memory[s] as NSNumber)!
             s -= 1
+        case .returnFunction(let memoryHead, let length):
+            // Save the function value in an auxiliary variable
+            let functionReturnValue = memory[s]
+            s -= 1
+            // Perform the same action as dealloc, if needed
+            if let memoryHead = memoryHead, let length = length {
+                for k in stride(from: length - 1, through: 0, by: -1) {
+                    setValue(memory[s], atIndex: memoryHead + k)
+                    s -= 1
+                }
+            }
+            // Perform same action as return
+            nextInstructionIndex = Int(exactly: memory[s] as NSNumber)!
+            s -= 1
+            // Perform same action as loadConstant(functionReturnValue), to put the function return value back into the top of the stack
+            s += 1
+            setValue(functionReturnValue, atIndex: s)
         }
         i = nextInstructionIndex
-        executeNextInstruction()
+        try executeNextInstruction()
     }
 
-    private func handleValueRead() {
-        if let value = valueRead {
-            s += 1
-            memory[s] = value
-        }
-        valueRead = nil
+    func setValueRead(_ valueRead: Decimal) {
+        setValue(valueRead, atIndex: s)
         i += 1
-        executeNextInstruction()
+        // TODO: Move this call away from here?
+        try? executeNextInstruction()
     }
-}
 
-extension Sequence {
-    /// Returns an `Array` containing the results of mapping `transform` over `self`. Returns `nil` if `transform` returns `nil` at any point.
-    func failableMap<T>(_ transform: (Element) throws -> T?) rethrows -> [T]? {
-        var result: [T] = []
-        for element in self {
-            guard let transformedElement = try transform(element) else { return nil }
-            result.append(transformedElement)
+    // MARK: Convenience
+    private func reset() {
+        memory = []
+        pc = []
+        s = 0
+        i = 0
+        labelMap = [:]
+    }
+
+    private func setValue(_ value: Decimal, atIndex index: Int) {
+        if memory.indices.contains(index) {
+            // It's already allocated, just assign
+            memory[index] = value
+        } else {
+            // Memory is not allocated yet, let's do it now.
+            // NOTE: This assumes we're simply appending a new value (i.e. the index is just 1 above the current indices), which's fine, given the current implementation.
+            memory.append(value)
         }
-        return result
     }
 }
