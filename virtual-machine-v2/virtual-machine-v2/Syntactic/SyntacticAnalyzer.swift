@@ -185,11 +185,10 @@ final class SyntacticAnalyzer {
 
     /// Analyzes a `<etapa de declaração de sub-rotinas>` structure defined in the formal language grammar.
     private func analyzeSubroutinesDeclarations() throws {
-        var hasSubroutines = false
-        let mainProgramLabel = branchLabel // Freeze
+        var mainProgramLabel: String? = nil
         if token?.symbol == .s_procedure || token?.symbol == .s_function {
-            hasSubroutines = true
-            generator.generateInstruction(.jump(label: mainProgramLabel))
+            mainProgramLabel = branchLabel // Freeze
+            generator.generateInstruction(.jump(label: mainProgramLabel!))
         }
         while token?.symbol == .s_procedure || token?.symbol == .s_function {
             if token?.symbol == .s_procedure {
@@ -204,7 +203,7 @@ final class SyntacticAnalyzer {
                 throw SyntacticError(expected: "`;`", butFoundEOF: ())
             }
         }
-        if hasSubroutines {
+        if let mainProgramLabel = mainProgramLabel {
             generator.generateInstruction(.null(label: mainProgramLabel))
         }
     }
