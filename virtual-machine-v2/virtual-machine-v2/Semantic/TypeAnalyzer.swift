@@ -104,14 +104,4 @@ final class TypeAnalyzer {
         output.removeAll()
         debugInputString = ""
     }
-
-    // MARK: Nested Types
-    enum PrecedenceGroup : Int {
-        case unary = 200
-        case multiplication = 180
-        case sum = 160
-        case comparison = 140
-        case and = 120
-        case or = 100
-    }
 }
