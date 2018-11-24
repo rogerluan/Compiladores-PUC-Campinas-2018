@@ -40,6 +40,7 @@ final class ViewController: UIViewController {
     private let showRightPanelOnLaunch = true
 
     private var previousNumberOfLines = 0
+    private var rawInstructions = ""
     private var sourceTextViewText: String? {
         get { return sourceTextView.text }
         set { sourceTextView.text = newValue?.trimmingCharacters(in: .whitespacesAndNewlines); handleSourceTextViewTextChanged() }
@@ -111,24 +112,32 @@ final class ViewController: UIViewController {
         // TODO: guard against lack of file
         // TODO: run the file
         // TODO: Implement different run options (e.g. step by step, or free running)
-//        testSyntacticAnalyzer()
-        read()
+        testAnalyzers()
+//        testVirtualMachine(Engine.shared.process(text: sourceTextView.text ?? ""))
+    }
+
+    @IBAction func exportAssemblyCode() {
+        UIPasteboard.general.string = rawInstructions
+        let alert = UIAlertController(title: NSLocalizedString("Instructions Copied!", comment: ""), message: NSLocalizedString("The assembly instructions have been copied to your clipboard.", comment: ""), preferredStyle: .alert)
+        let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+        alert.addAction(okAction)
+        present(alert, animated: true, completion: nil)
     }
 
     // ===========================
     // Debugging area
-    private func testLexicalAnalyzer() {
-        if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? "") {
+    private func testAnalyzers() {
+        if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? ""), let syntacticAnalyzer = SyntacticAnalyzer(lexicalAnalyzer: lexicalAnalyzer) {
             do {
-                while let nextToken = try lexicalAnalyzer.readNextToken() {
-                    outputTextView.text = (outputTextView.text ?? "") + nextToken.debugDescription + "\n"
-                    print(nextToken.debugDescription)
-                }
+                let instructions = try syntacticAnalyzer.analyzeProgram()
+                rawInstructions = syntacticAnalyzer.rawInstructions()
+//                outputTextView.text += NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors\n", comment: "")
+                testVirtualMachine(instructions: instructions)
             } catch {
-                let errorMessage = (error as! LexicalError).message
-                outputTextView.text = (outputTextView.text ?? "") + errorMessage
-                print(errorMessage)
-                let alert = UIAlertController(title: NSLocalizedString("Lexical Error", comment: ""), message: errorMessage, preferredStyle: .alert)
+                let error = error as! CompilerError
+                outputTextView.text = (outputTextView.text ?? "") + error.message
+                print(error.message)
+                let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
                 let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
                 alert.addAction(okAction)
                 present(alert, animated: true, completion: nil)
@@ -141,22 +150,23 @@ final class ViewController: UIViewController {
         }
     }
 
-    private func testSyntacticAnalyzer() {
-        if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? ""), let syntacticAnalyzer = SyntacticAnalyzer(lexicalAnalyzer: lexicalAnalyzer) {
-            do {
-                try syntacticAnalyzer.analyzeProgram()
-                outputTextView.text = NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: "")
-            } catch {
-                let error = error as! CompilerError
-                outputTextView.text = (outputTextView.text ?? "") + error.message
-                print(error.message)
-                let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
-                let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
-                alert.addAction(okAction)
-                present(alert, animated: true, completion: nil)
-            }
-        } else {
-            let alert = UIAlertController(title: NSLocalizedString("Lexical Error", comment: ""), message: NSLocalizedString("The file you loaded is empty.", comment: ""), preferredStyle: .alert)
+    /// Reads and processes instructions from the text view.
+    private func testVirtualMachine(instructions: [Instruction]) {
+        guard !instructions.isEmpty else {
+            let alert = UIAlertController(title: NSLocalizedString("Failed to Compile", comment: ""), message: NSLocalizedString("The source code failed to compile or returned no instructions.", comment: ""), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        instructionsTableView.items = instructions
+        do {
+            try Engine.shared.execute(instructions: instructions)
+        } catch {
+            let error = error as! RuntimeError
+            outputTextView.text = (outputTextView.text ?? "") + error.message
+            print(error.message)
+            let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
             alert.addAction(okAction)
             present(alert, animated: true, completion: nil)
@@ -179,31 +189,6 @@ final class ViewController: UIViewController {
             alert.addAction(okAction)
             present(alert, animated: true, completion: nil)
         }
-    }
-
-    /// Reads and processes instructions from the text view.
-    private func read() {
-        let instructions = Engine.shared.process(text: sourceTextView.text ?? "")
-        guard !instructions.isEmpty else { showFailureAlert(); return }
-        instructionsTableView.items = instructions
-        do {
-            try Engine.shared.execute(instructions: instructions)
-        } catch {
-            let error = error as! RuntimeError
-            outputTextView.text = (outputTextView.text ?? "") + error.message
-            print(error.message)
-            let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
-            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
-            alert.addAction(okAction)
-            present(alert, animated: true, completion: nil)
-        }
-    }
-
-    private func showFailureAlert() {
-        let alert = UIAlertController(title: NSLocalizedString("Failed to Compile", comment: ""), message: NSLocalizedString("The source code failed to compile or returned no instructions.", comment: ""), preferredStyle: .alert)
-        let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
-        alert.addAction(okAction)
-        present(alert, animated: true, completion: nil)
     }
 
     // MARK: Actions

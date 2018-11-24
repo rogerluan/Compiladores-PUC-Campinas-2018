@@ -18,6 +18,8 @@ final class SyntacticAnalyzer {
     private let typeAnalyzer = TypeAnalyzer()
     /// Table of identifier entries.
     private let table = SymbolTable()
+    /// Code generator.
+    private let generator = CodeGenerator()
     /// `branchLabelCount` backing variable.
     private var _branchLabelCount: Int = 0
     /// Number used to identify the branches (e.g. L1, L2, etc).
@@ -34,8 +36,15 @@ final class SyntacticAnalyzer {
         self.lexicalAnalyzer = lexicalAnalyzer
     }
 
+    // MARK: Nested Types
+    enum BlockContext {
+        case program, procedure, function
+    }
+
     /// Analyzes a `<programa>` structure defined in the formal language grammar.
-    func analyzeProgram() throws {
+    func analyzeProgram() throws -> [Instruction] {
+        generator.reset()
+        generator.generateInstruction(.start)
         try readNextTokenIfPossible()
         if let token = self.token {
             guard token.symbol == .s_program else { throw SyntacticError(expected: "`programa`", butFound: token) }
@@ -46,13 +55,14 @@ final class SyntacticAnalyzer {
                 try readNextTokenIfPossible()
                 if let token = self.token {
                     guard token.symbol == .s_semicolon else { throw SyntacticError(expected: "`;`", butFound: token) }
-                    try analyzeBlock() // This already reads the next token
+                    try analyzeBlock(context: .program) // This already reads the next token
                     if let token = self.token {
                         guard token.symbol == .s_period else { throw SyntacticError(expected: "`.`", butFound: token) }
                         if let token = try lexicalAnalyzer.readNextToken() {
                             throw SyntacticError(expected: "end of file", butFound: token)
                         } else {
-                            return // Success
+                            generator.generateInstruction(.halt)
+                            return generator.instructions // Success
                         }
                     } else {
                         throw SyntacticError(expected: "`.`", butFoundEOF: ())
@@ -68,22 +78,45 @@ final class SyntacticAnalyzer {
         }
     }
 
+    func rawInstructions() -> String {
+        return generator.output
+    }
+
     /// Analyzes a `<bloco>` structure defined in the formal language grammar.
-    private func analyzeBlock() throws {
+    private func analyzeBlock(context: BlockContext) throws {
         try readNextTokenIfPossible()
-        try analyzeVariableDeclarations()
+        let variableCount = try analyzeVariableDeclarations()
+        let globalVariableCount = generator.globalVariableCount // Freeze
+        if let variableCount = variableCount {
+            generator.generateInstruction(.alloc(memoryHead: globalVariableCount, length: variableCount))
+            generator.globalVariableCount += variableCount
+        }
         try analyzeSubroutinesDeclarations()
         try analyzeCommands()
+        switch (context, variableCount) {
+        case (.program, nil): break // Do nothing
+        case (.procedure, nil): generator.generateInstruction(.return)
+        case (.function, nil): generator.generateInstruction(.returnFunction(memoryHead: nil, length: nil))
+        case (.program, .some(let variableCount)): generator.generateInstruction(.dealloc(memoryHead: globalVariableCount, length: variableCount))
+        case (.procedure, .some(let variableCount)):
+            generator.generateInstruction(.dealloc(memoryHead: globalVariableCount, length: variableCount))
+            generator.generateInstruction(.return)
+        case (.function, .some(let variableCount)): generator.generateInstruction(.returnFunction(memoryHead: globalVariableCount, length: variableCount))
+        }
+        if let variableCount = variableCount {
+            generator.globalVariableCount -= variableCount
+        }
     }
 
     /// Analyzes a `<etapa de declaração de variáveis>` structure defined in the formal language grammar.
-    private func analyzeVariableDeclarations() throws {
+    private func analyzeVariableDeclarations() throws -> Int? {
+        var variableCount = 0
         if let token = self.token, token.symbol == .s_var {
             try readNextTokenIfPossible()
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 while let token = self.token, token.symbol == .s_identifier {
-                    try analyzeVariables()
+                    variableCount += try analyzeVariables()
                     if let token = self.token {
                         guard token.symbol == .s_semicolon else { throw SyntacticError(expected: "`;`", butFound: token) }
                         try readNextTokenIfPossible()
@@ -95,16 +128,24 @@ final class SyntacticAnalyzer {
                 throw SyntacticError(expected: "an identifier", butFoundEOF: ())
             }
         }
+        return variableCount == 0 ? nil : variableCount
     }
 
     /// Analyzes a `<declaração de variáveis>` structure defined in the formal language grammar.
-    private func analyzeVariables() throws {
+    ///
+    /// - Returns: Number of variables read.
+    private func analyzeVariables() throws -> Int {
+        var variableCount = 0
         repeat {
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 let entry = table.searchDeclaration(of: [ .variable ], with: token.lexeme, in: .local)
                 guard entry == nil else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` at line %ld was already defined.", comment: ""), token.lexeme, token.line)) }
-                table.addEntry(VariableEntry(lexeme: token.lexeme, type: nil))
+                variableCount += 1
+                // Technically we could declare these before incrementing the variable count variable, but the way it's written here is
+                // more correct, semantically: the index should be the variable count minus one.
+                let variableIndex = generator.globalVariableCount + variableCount - 1
+                table.addEntry(VariableEntry(lexeme: token.lexeme, type: nil, index: variableIndex))
                 try readNextTokenIfPossible()
                 if let token = self.token {
                     guard token.symbol == .s_comma || token.symbol == .s_colon else { throw SyntacticError(expected: "`,` or `:`", butFound: token) }
@@ -125,6 +166,7 @@ final class SyntacticAnalyzer {
         } while self.token?.symbol != .s_colon
         try readNextTokenIfPossible()
         try analyzeType()
+        return variableCount
     }
 
     /// Analyzes a `<tipo>` structure defined in the formal language grammar.
@@ -143,9 +185,11 @@ final class SyntacticAnalyzer {
 
     /// Analyzes a `<etapa de declaração de sub-rotinas>` structure defined in the formal language grammar.
     private func analyzeSubroutinesDeclarations() throws {
-//        var flag = false
+        var hasSubroutines = false
+        let mainProgramLabel = branchLabel // Freeze
         if token?.symbol == .s_procedure || token?.symbol == .s_function {
-            // TODO: Not implemented yet.
+            hasSubroutines = true
+            generator.generateInstruction(.jump(label: mainProgramLabel))
         }
         while token?.symbol == .s_procedure || token?.symbol == .s_function {
             if token?.symbol == .s_procedure {
@@ -160,9 +204,9 @@ final class SyntacticAnalyzer {
                 throw SyntacticError(expected: "`;`", butFoundEOF: ())
             }
         }
-//        if flag {
-            // TODO: Not implemented yet.
-//        }
+        if hasSubroutines {
+            generator.generateInstruction(.null(label: mainProgramLabel))
+        }
     }
 
     /// Analyzes a `<declaração de procedimento>` structure defined in the formal language grammar.
@@ -180,11 +224,13 @@ final class SyntacticAnalyzer {
                 guard localEntry == nil else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` at line %ld was already defined as a local procedure.", comment: ""), token.lexeme, token.line)) }
             default: break // It's nil, which means it wasn't declared previously
             }
-            table.addEntry(ProcedureEntry(lexeme: token.lexeme, label: "bogus-temporary-label"))
+            let procedureLabel = branchLabel // Freeze
+            table.addEntry(ProcedureEntry(lexeme: token.lexeme, label: procedureLabel))
+            generator.generateInstruction(.null(label: procedureLabel))
             try readNextTokenIfPossible()
             if let token = self.token {
                 guard token.symbol == .s_semicolon else { throw SyntacticError(expected: "`;`", butFound: token) }
-                try analyzeBlock()
+                try analyzeBlock(context: .procedure)
             } else {
                 throw SyntacticError(expected: "`;`", butFoundEOF: ())
             }
@@ -214,14 +260,16 @@ final class SyntacticAnalyzer {
                 guard token.symbol == .s_colon else { throw SyntacticError(expected: "`:`", butFound: token) }
                 try readNextTokenIfPossible()
                 if let token = self.token {
+                    let functionLabel = branchLabel // Freeze
                     switch token.symbol {
-                    case .s_integer: table.addEntry(FunctionEntry(lexeme: functionIdentifierToken.lexeme, type: .int, label: "bogus-temporary-label"))
-                    case .s_boolean: table.addEntry(FunctionEntry(lexeme: functionIdentifierToken.lexeme, type: .bool, label: "bogus-temporary-label"))
+                    case .s_integer: table.addEntry(FunctionEntry(lexeme: functionIdentifierToken.lexeme, type: .int, label: functionLabel))
+                    case .s_boolean: table.addEntry(FunctionEntry(lexeme: functionIdentifierToken.lexeme, type: .bool, label: functionLabel))
                     default: throw SyntacticError(expected: "`inteiro` or `booleano`", butFound: token)
                     }
+                    generator.generateInstruction(.null(label: functionLabel))
                     try readNextTokenIfPossible()
                     if self.token?.symbol == .s_semicolon {
-                        try analyzeBlock()
+                        try analyzeBlock(context: .function)
                     } else {
                         // Do nothing
                     }
@@ -284,19 +332,19 @@ final class SyntacticAnalyzer {
                 // Both local and global variables can be assigned to.
                 let assignmentType = try analyzeAssignment()
                 guard variableEntry.type == assignmentType else { throw SemanticError(message: String(format: NSLocalizedString("Cannot assign value of type `%@` to type `%@` at line %ld.", comment: ""), assignmentType.description, variableEntry.type.description, token!.line)) }
-                // TODO: Generate code for the variable entry
+                generator.generateInstruction(.assign(index: variableEntry.index))
             } else if let functionEntry = table.searchDeclaration(of: [ .function ], with: previousToken.lexeme, in: .local) as! FunctionEntry? {
                 // When we're inside a function, a function can be assigned to, and that represents the return of the function.
                 let assignmentType = try analyzeAssignment()
                 guard functionEntry.type == assignmentType else { throw SemanticError(message: String(format: NSLocalizedString("Cannot assign value of type `%@` to type `%@` at line %ld.", comment: ""), assignmentType.description, functionEntry.type.description, token!.line)) }
-                // TODO: Generate code for the function entry
+                // Don't generate any function-related assignment (i.e. .returnFunction instruction) because this is handled by `analyzeBlock(isFunction)`
             } else {
                 throw SemanticError(message: String(format: NSLocalizedString("Identifier `%@` at line %ld was used but not declared.", comment: ""), previousToken.lexeme, previousToken.line))
             }
         } else {
-            if let procedureEntry = table.searchDeclaration(of: [ .procedure ], with: previousToken.lexeme, in: .global) {
+            if let procedureEntry = table.searchDeclaration(of: [ .procedure ], with: previousToken.lexeme, in: .global) as! ProcedureEntry? {
                 try analyzeProcedureCall()
-                // TODO: Generate code for the procedure entry
+                generator.generateInstruction(.call(label: procedureEntry.label))
             } else {
                 throw SemanticError(message: String(format: NSLocalizedString("Identifier `%@` at line %ld was used but not declared.", comment: ""), previousToken.lexeme, previousToken.line))
             }
@@ -306,14 +354,15 @@ final class SyntacticAnalyzer {
     /// Analyzes a `<comando atribuicao>` structure defined in the formal language grammar.
     private func analyzeAssignment() throws -> Type {
         try readNextTokenIfPossible()
-        let assignmentType = try analyzeExpression() // TODO: Do we really need the returned type?
-        typeAnalyzer.finalize() // TODO: Use the result to generate code
+        let assignmentType = try analyzeExpression()
+        let postFixedExpression = typeAnalyzer.finalize()
+        generator.generateInstructionsForPostFixedExpression(postFixedExpression, symbolTable: table)
         return assignmentType
     }
 
     /// Analyzes a `<chamada de procedimento>` structure defined in the formal language grammar.
     private func analyzeProcedureCall() throws {
-        // Not implemented yet
+        // TODO: Not implemented yet
     }
 
     /// Analyzes a `<chamada de função>` structure defined in the formal language grammar.
@@ -325,20 +374,29 @@ final class SyntacticAnalyzer {
     private func analyzeIf() throws {
         let token = self.token // Freeze only to print the line below
         try readNextTokenIfPossible()
-        // Defer guarantees the type analysis is properly finalized at all cases
-        defer { typeAnalyzer.finalize() } // TODO: Use the result to generate code
+        // Defer guarantees the type analysis is properly reset at all cases
+        defer { typeAnalyzer.reset() }
         let expressionType = try analyzeExpression()
         // Token is safe to force unwrap below because readNextTokenIfPossible() succeeded
         guard expressionType == .bool else { throw SemanticError(message: String(format: NSLocalizedString("Expression type mismatch: expected a boolean expression at line %ld.", comment: ""), token!.line)) }
         if let token = self.token {
             guard token.symbol == .s_then else { throw SyntacticError(expected: "`entao`", butFound: token) }
+            let postFixedExpression = typeAnalyzer.finalize()
+            generator.generateInstructionsForPostFixedExpression(postFixedExpression, symbolTable: table)
+            let elseLabel = branchLabel // Freeze
+            generator.generateInstruction(.jumpIfFalse(label: elseLabel))
             try readNextTokenIfPossible()
             try analyzeSimpleCommand()
             if self.token?.symbol == .s_else {
+                let quitIfStatementLabel = branchLabel // Freeze
+                generator.generateInstruction(.jump(label: quitIfStatementLabel))
+                generator.generateInstruction(.null(label: elseLabel))
                 try readNextTokenIfPossible()
                 try analyzeSimpleCommand()
+                generator.generateInstruction(.null(label: quitIfStatementLabel))
             } else {
-                // Do nothing
+                // The `if` being analyzed doesn't have an `else` (which's fine).
+                generator.generateInstruction(.null(label: elseLabel))
             }
         } else {
             throw SyntacticError(expected: "`entao`", butFoundEOF: ())
@@ -469,15 +527,27 @@ final class SyntacticAnalyzer {
     private func analyzeWhile() throws {
         let token = self.token // Freeze only to print the line below
         try readNextTokenIfPossible()
-        // Defer guarantees the type analysis is properly finalized at all cases
-        defer { typeAnalyzer.finalize() } // TODO: Use the result to generate code
+        // Defer guarantees the type analysis is properly reset at all cases
+        defer { typeAnalyzer.reset() }
+        let expressionEvaluationLabel = branchLabel // Freeze
+        generator.generateInstruction(.null(label: expressionEvaluationLabel))
         let expressionType = try analyzeExpression()
         // Token is safe to force unwrap below because readNextTokenIfPossible() succeeded
         guard expressionType == .bool else { throw SemanticError(message: String(format: NSLocalizedString("Type mismatch: expected a boolean expression at line %ld.", comment: ""), token!.line)) }
         if let token = self.token {
             guard token.symbol == .s_do else { throw SyntacticError(expected: "`faca`", butFound: token) }
+
+            let postFixedExpression = typeAnalyzer.finalize()
+            generator.generateInstructionsForPostFixedExpression(postFixedExpression, symbolTable: table)
+
+            let quitWhileStatementLabel = branchLabel // Freeze
+            generator.generateInstruction(.jumpIfFalse(label: quitWhileStatementLabel))
+
             try readNextTokenIfPossible()
             try analyzeSimpleCommand()
+
+            generator.generateInstruction(.jump(label: expressionEvaluationLabel))
+            generator.generateInstruction(.null(label: quitWhileStatementLabel))
         } else {
             throw SyntacticError(expected: "`faca`", butFoundEOF: ())
         }
@@ -485,6 +555,7 @@ final class SyntacticAnalyzer {
 
     /// Analyzes a `<comando leitura>` structure defined in the formal language grammar.
     private func analyzeRead() throws {
+        generator.generateInstruction(.read)
         try readNextTokenIfPossible()
         if let token = self.token {
             guard token.symbol == .s_left_parenthesis else { throw SyntacticError(expected: "`(`", butFound: token) }
@@ -493,6 +564,7 @@ final class SyntacticAnalyzer {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 guard let variableEntry = table.searchDeclaration(of: [ .variable ], with: token.lexeme, in: .global) as! VariableEntry? else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` at line %ld is being used but was never defined.", comment: ""), token.lexeme, token.line)) }
                 guard variableEntry.type == .int else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` being read at line %ld must be an integer.", comment: ""), token.lexeme, token.line)) }
+                generator.generateInstruction(.assign(index: variableEntry.index))
                 try readNextTokenIfPossible()
                 if let token = self.token {
                     guard token.symbol == .s_right_parenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
@@ -518,6 +590,14 @@ final class SyntacticAnalyzer {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 guard let typedEntry = table.searchDeclaration(of: [ .variable, .function ], with: token.lexeme, in: .global) as! TypedEntry? else { throw SemanticError(message: String(format: NSLocalizedString("Identifier `%@` at line %ld is being used but was never defined.", comment: ""), token.lexeme, token.line)) }
                 guard typedEntry.type == .int else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` being written at line %ld must be an integer.", comment: ""), token.lexeme, token.line)) }
+                if let variableEntry = typedEntry as? VariableEntry {
+                    generator.generateInstruction(.loadValue(index: variableEntry.index))
+                } else if let functionEntry = typedEntry as? FunctionEntry {
+                    generator.generateInstruction(.call(label: functionEntry.label))
+                } else {
+                    preconditionFailure()
+                }
+                generator.generateInstruction(.print)
                 try readNextTokenIfPossible()
                 if let token = self.token {
                     guard token.symbol == .s_right_parenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }

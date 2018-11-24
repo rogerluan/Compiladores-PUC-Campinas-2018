@@ -65,8 +65,29 @@
                                             <action selector="run:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nzZ-kd-xhB"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="255" horizontalCompressionResistancePriority="755" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UjA-kC-l03">
+                                        <rect key="frame" x="120" y="0.0" width="44" height="44"/>
+                                        <inset key="imageEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
+                                        <state key="normal" title="Copy Instructions">
+                                            <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                        </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
+                                                <color key="value" red="0.90196078430000004" green="0.90196078430000004" blue="0.90196078430000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                                <real key="value" value="1"/>
+                                            </userDefinedRuntimeAttribute>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="cornerRadius">
+                                                <real key="value" value="4"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
+                                        <connections>
+                                            <action selector="exportAssemblyCode" destination="BYZ-38-t0r" eventType="touchUpInside" id="eID-gf-N1t"/>
+                                        </connections>
+                                    </button>
                                     <view contentMode="scaleToFill" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="8cp-me-kUr" userLabel="Spacer">
-                                        <rect key="frame" x="120" y="0.0" width="1010.5" height="44"/>
+                                        <rect key="frame" x="180" y="0.0" width="950.5" height="44"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </view>
                                     <button opaque="NO" contentMode="scaleAspectFit" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MrP-Dd-EPe">
@@ -154,17 +175,17 @@
                                                 <rect key="frame" x="0.0" y="0.0" width="1118" height="664"/>
                                                 <subviews>
                                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="32" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="QUq-Yd-9ri" userLabel="Instructions Table View" customClass="InstructionsTableView" customModule="virtual_machine_v2" customModuleProvider="target">
-                                                        <rect key="frame" x="0.0" y="0.0" width="160" height="664"/>
+                                                        <rect key="frame" x="0.0" y="0.0" width="200" height="664"/>
                                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="width" constant="160" id="y78-Ee-dtj"/>
+                                                            <constraint firstAttribute="width" constant="200" id="y78-Ee-dtj"/>
                                                         </constraints>
                                                         <prototypes>
                                                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="InstructionCell" rowHeight="32" id="1Nz-5Q-mBO" customClass="InstructionCell" customModule="virtual_machine_v2" customModuleProvider="target">
-                                                                <rect key="frame" x="0.0" y="28" width="160" height="32"/>
+                                                                <rect key="frame" x="0.0" y="28" width="200" height="32"/>
                                                                 <autoresizingMask key="autoresizingMask"/>
                                                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="1Nz-5Q-mBO" id="z2p-Ap-RNT">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="160" height="32"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="200" height="32"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <subviews>
                                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZSS-g6-eZy">
@@ -213,7 +234,7 @@
                                                         </userDefinedRuntimeAttributes>
                                                     </tableView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GVn-lj-WYS">
-                                                        <rect key="frame" x="168" y="0.0" width="950" height="664"/>
+                                                        <rect key="frame" x="208" y="0.0" width="910" height="664"/>
                                                         <subviews>
                                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="fkb-E1-bwc">
                                                                 <rect key="frame" x="0.0" y="0.0" width="40" height="664"/>
@@ -229,46 +250,48 @@
                                                                 </connections>
                                                             </textView>
                                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="fFx-Lx-wrU" userLabel="Source Code Editor">
-                                                                <rect key="frame" x="40" y="0.0" width="910" height="664"/>
+                                                                <rect key="frame" x="40" y="0.0" width="870" height="664"/>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                <string key="text">start
-alloc 0,2
-jmp L1
-L2 null
-alloc 2,1
-ldv 0
-str 2
-ldv 0
-ldc 1
-sub
-str 0
-ldv 2
-ldc 1
-cma
-jmpf L3
-call L2
-jmp L4
-L3 null
-ldc 1
-str 1
-L4 null
-ldv 1
-ldv 2
-mult
-str 1
-dalloc 2,1
-return
+                                                                <mutableString key="text">programa testeFatorialRecursivo;  {calcula o fatorial recursivamente - OK}
+  var x, y: inteiro;
 
-L1 null
-rd
-str 0
-call L2
-ldv 1
-prn
-ldv 0
-prn
-dalloc 0,2
-hlt</string>
+  { Um procedimento qualquer que não será executado }
+  procedimento procedimentoNaoExecutado;
+    var x, y, total: inteiro;
+
+    procedimento dobro;
+    var dobroCalculado: inteiro;
+    inicio
+      dobroCalculado := total * 2;
+      escreva(dobroCalculado)
+    fim; { dobro }
+
+  inicio
+      leia(x);
+      leia(y);
+      total := x + y;
+      escreva(total); { soma dos numeros lidos}
+      dobro { Calcula o dobro da soma }
+  fim { procedimentoNaoExecutado };
+
+  { Calcula fatorial de um numero lido }
+  procedimento calcularFatorial;
+    var z: inteiro;
+  inicio
+    z := x;
+    x := x - 1;
+    se z &gt; 1 entao 
+      calcularFatorial {recursivo} 
+    senao
+      y := 1;
+    y := y * z               
+  fim; { calcularFatorial }
+
+inicio
+  leia(x);
+  calcularFatorial;
+  escreva(y)
+fim.</mutableString>
                                                                 <color key="textColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 <fontDescription key="fontDescription" name="CourierNewPSMT" family="Courier New" pointSize="12"/>
                                                                 <textInputTraits key="textInputTraits" autocorrectionType="no"/>
@@ -379,7 +402,7 @@ hlt</string>
                                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="Wbk-9L-TGB" userLabel="I/O Stack View">
                                                         <rect key="frame" x="0.0" y="56" width="1118" height="128"/>
                                                         <subviews>
-                                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Input Text View Sample Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="13t-vZ-pM7" userLabel="Input History Text View">
+                                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Input Text View Sample Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="13t-vZ-pM7" userLabel="Input History Text View">
                                                                 <rect key="frame" x="0.0" y="0.0" width="551" height="128"/>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <color key="textColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -397,7 +420,7 @@ hlt</string>
                                                                     </userDefinedRuntimeAttribute>
                                                                 </userDefinedRuntimeAttributes>
                                                             </textView>
-                                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" text="Output Text View Sample Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="YK8-V5-txg" userLabel="Output Text View">
+                                                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" text="Output Text View Sample Text" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="YK8-V5-txg" userLabel="Output Text View">
                                                                 <rect key="frame" x="567" y="0.0" width="551" height="128"/>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <color key="textColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
