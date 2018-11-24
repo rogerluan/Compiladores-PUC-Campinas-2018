@@ -56,7 +56,7 @@ final class ViewController: UIViewController {
             self.inputTextField.becomeFirstResponder()
         }
         Engine.shared.printHandler = { [unowned self] value in
-            self.outputTextView.text = self.outputTextView.text.appending("\(value)\n")
+            self.println("\(value)")
         }
         Engine.shared.memoryChangedHandler = { [unowned self] in
             self.memoryTableView.handleMemoryChanged()
@@ -131,11 +131,11 @@ final class ViewController: UIViewController {
             do {
                 let instructions = try syntacticAnalyzer.analyzeProgram()
                 rawInstructions = syntacticAnalyzer.rawInstructions()
-//                outputTextView.text += NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors\n", comment: "")
+//                println(NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: ""))
                 testVirtualMachine(instructions: instructions)
             } catch {
                 let error = error as! CompilerError
-                outputTextView.text = (outputTextView.text ?? "") + error.message
+                println(error.message)
                 print(error.message)
                 let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
                 let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -164,7 +164,7 @@ final class ViewController: UIViewController {
             try Engine.shared.execute(instructions: instructions)
         } catch {
             let error = error as! RuntimeError
-            outputTextView.text = (outputTextView.text ?? "") + error.message
+            println(error.message)
             print(error.message)
             let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -182,7 +182,7 @@ final class ViewController: UIViewController {
             try Engine.shared.continueExecution()
         } catch {
             let error = error as! RuntimeError
-            outputTextView.text = (outputTextView.text ?? "") + error.message
+            println(error.message)
             print(error.message)
             let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -249,7 +249,12 @@ final class ViewController: UIViewController {
             present(alert, animated: true, completion: nil)
             return
         }
-        inputTextView.text = inputTextView.text.appending("\(decimalString)\n")
+        // Append input text to the input text view
+        inputTextView.text += "\(decimalString)\n"
+        // Scroll to bottom
+        let bottom = NSMakeRange(inputTextView.text.count - 1, 1)
+        inputTextView.scrollRangeToVisible(bottom)
+
         inputTextField.text = nil
         inputTextField.isUserInteractionEnabled = false
         inputTextField.resignFirstResponder()
@@ -275,6 +280,14 @@ final class ViewController: UIViewController {
         for i in 1...numberOfLines {
             lineNumberTextView.text += "\(i)\n"
         }
+    }
+
+    private func println(_ string: String) {
+        // Append text and add line break
+        outputTextView.text += "\(string)\n"
+        // Scroll to bottom
+        let bottom = NSMakeRange(outputTextView.text.count - 1, 1)
+        outputTextView.scrollRangeToVisible(bottom)
     }
 }
 
