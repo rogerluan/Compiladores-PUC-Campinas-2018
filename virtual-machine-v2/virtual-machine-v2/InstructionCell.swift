@@ -27,7 +27,12 @@ final class InstructionCell : UITableViewCell {
 
     // MARK: Update
     private func handleItemChanged() {
-        label.text = "\(item.opcode) \(item.argument1 ?? "") \(item.argument2 ?? "")"
+        label.text = {
+            switch item {
+            case .null(let label)?: return "\(label)\t\(item.opcode)"
+            default: return "\t\(item.opcode) \(item.argument1 ?? "") \(item.argument2 ?? "")"
+            }
+        }()
         breakpointButton.isSelected = Engine.shared.hasBreakpoint(at: line)
     }
 
