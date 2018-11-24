@@ -18,10 +18,10 @@ final class TypeAnalyzer {
         debugInputString += "\(term.lexeme) "
         var op: TokenType? = nil
         switch term.symbol {
-        case .s_number: output.append(TokenType.operand(term.lexeme)) // Done
-        case .s_identifier: output.append(TokenType.operand(term.lexeme)) // Done
-        case .s_true: output.append(TokenType.operand(term.lexeme)) // Done
-        case .s_false: output.append(TokenType.operand(term.lexeme)) // Done
+        case .s_number: output.append(TokenType.operand(term)) // Done
+        case .s_identifier: output.append(TokenType.operand(term)) // Done
+        case .s_true: output.append(TokenType.operand(term)) // Done
+        case .s_false: output.append(TokenType.operand(term)) // Done
         case .s_left_parenthesis: op = .leftParenthesis // Done
         case .s_right_parenthesis: op = .rightParenthesis // Done
         case .s_greater: op = .operator(.greater)
@@ -94,12 +94,12 @@ final class TypeAnalyzer {
         print("Before: " + debugInputString)
         let result = output
         print("After: " + output.reduce("") { $0 + "\($1) " })
-        resetAnalyzer()
+        reset()
         return result
     }
 
     // TODO: Evaluate if this is necessary, as opposed to really creating a new object and initializing it again in the SyntacticAnalyzer file.
-    private func resetAnalyzer() {
+    func reset() {
         operatorStack.removeAll()
         output.removeAll()
         debugInputString = ""

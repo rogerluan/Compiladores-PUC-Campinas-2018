@@ -15,7 +15,6 @@ final class InstructionCell : UITableViewCell {
     static let reuseIdentifier = "InstructionCell"
 
     var item: Instruction! = nil { didSet { handleItemChanged() } }
-    var isBreakpointSelected : Bool { return breakpointButton.isSelected }
     var line: Int = 0
 
     // MARK: Initialization
@@ -28,23 +27,19 @@ final class InstructionCell : UITableViewCell {
 
     // MARK: Update
     private func handleItemChanged() {
-        label.text = "\(item.opcode) \(item.argument1) \(item.argument2)"
-        breakpointButton.isSelected = Engine.shared.breakpointLines.contains(line)
+        label.text = "\(item.opcode) \(item.argument1 ?? "") \(item.argument2 ?? "")"
+        breakpointButton.isSelected = Engine.shared.hasBreakpoint(at: line)
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        label.text = ""
+        label.text = nil
         breakpointButton.isSelected = false
     }
 
     // MARK: Interaction
     @IBAction private func handleBreakpointSelected(sender: UIButton) {
         sender.isSelected = !sender.isSelected
-        if sender.isSelected {
-            Engine.shared.activateBreakpoint(on: line)
-        } else {
-            Engine.shared.deactivateBreakpoint(on: line)
-        }
+        Engine.shared.setBreakpoint(active: sender.isSelected, at: line)
     }
 }

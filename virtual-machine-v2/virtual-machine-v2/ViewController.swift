@@ -9,6 +9,8 @@
 import UIKit
 
 final class ViewController: UIViewController {
+
+    // MARK: Components
     @IBOutlet private var sourceTextView: UITextView!
     @IBOutlet private var lineNumberTextView: UITextView!
     @IBOutlet private var instructionsTableView: InstructionsTableView!
@@ -25,11 +27,17 @@ final class ViewController: UIViewController {
     @IBOutlet private var debugAreaButtonsStackView: UIStackView!
     @IBOutlet private var ioStackView: UIStackView!
 
+    @IBOutlet private var continueExecutionButton: UIButton!
     @IBOutlet private var leftPanelToggleButton: UIButton!
     @IBOutlet private var bottomPanelToggleButton: UIButton!
     @IBOutlet private var rightPanelToggleButton: UIButton!
     @IBOutlet private var debugAreaLeftPanelToggleButton: UIButton!
     @IBOutlet private var debugAreaRightPanelToggleButton: UIButton!
+
+    // MARK: Settings
+    private let showDebugAreaLeftPanelOnLaunch = true
+    private let showLeftPanelOnLaunch = true
+    private let showRightPanelOnLaunch = true
 
     private var previousNumberOfLines = 0
     private var sourceTextViewText: String? {
@@ -43,31 +51,37 @@ final class ViewController: UIViewController {
             print("Finished executing with success.")
         }
         Engine.shared.readHandler = { [unowned self] in
-            self.inputTextView.isUserInteractionEnabled = true
-            self.inputTextView.becomeFirstResponder()
+            self.inputTextField.isUserInteractionEnabled = true
+            self.inputTextField.becomeFirstResponder()
         }
         Engine.shared.printHandler = { [unowned self] value in
-            self.outputTextView.text = self.outputTextView.text.appending("\n\(value)")
+            self.outputTextView.text = self.outputTextView.text.appending("\(value)\n")
         }
-        Engine.shared.memoryChangedHandler = { [unowned self] memory in
-            self.memoryTableView.memory = memory
+        Engine.shared.memoryChangedHandler = { [unowned self] in
+            self.memoryTableView.handleMemoryChanged()
         }
         Engine.shared.programCounterChangedHandler = { [unowned self] index in
             self.instructionsTableView.index = index
         }
+        Engine.shared.executionPausedHandler = { [unowned self] line in
+            self.continueExecutionButton.isEnabled = true
+            self.instructionsTableView.lineStoppedAt = line
+        }
 
         // Set up initial layout
-        inputTextView.isHidden = true
-        debugAreaLeftPanelToggleButton.isSelected = false
+        inputTextView.text = nil
+        outputTextView.text = nil
+        inputTextView.isHidden = !showDebugAreaLeftPanelOnLaunch
+        debugAreaLeftPanelToggleButton.isSelected = showDebugAreaLeftPanelOnLaunch
 
-        instructionsTableView.isHidden = true
-        leftPanelToggleButton.isSelected = false
+        instructionsTableView.isHidden = !showLeftPanelOnLaunch
+        leftPanelToggleButton.isSelected = showLeftPanelOnLaunch
 
-        memoryTableView.isHidden = true
-        rightPanelToggleButton.isSelected = false
+        memoryTableView.isHidden = !showRightPanelOnLaunch
+        rightPanelToggleButton.isSelected = showRightPanelOnLaunch
 
         // Remove annoying iPad input assistant item bar
-        for textView in [ sourceTextView, lineNumberTextView ] {
+        for textView in [ sourceTextView, lineNumberTextView, inputTextView ] {
             textView?.autocorrectionType = .no
             textView?.inputAssistantItem.leadingBarButtonGroups = []
             textView?.inputAssistantItem.trailingBarButtonGroups = []
@@ -97,9 +111,8 @@ final class ViewController: UIViewController {
         // TODO: guard against lack of file
         // TODO: run the file
         // TODO: Implement different run options (e.g. step by step, or free running)
-//        read()
-        outputTextView.text = nil
-        testSyntacticAnalyzer()
+//        testSyntacticAnalyzer()
+        read()
     }
 
     // ===========================
@@ -132,7 +145,7 @@ final class ViewController: UIViewController {
         if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? ""), let syntacticAnalyzer = SyntacticAnalyzer(lexicalAnalyzer: lexicalAnalyzer) {
             do {
                 try syntacticAnalyzer.analyzeProgram()
-                outputTextView.text = NSLocalizedString("✅ Lexical and Syntactic Analysis Completed with No Errors", comment: "")
+                outputTextView.text = NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: "")
             } catch {
                 let error = error as! CompilerError
                 outputTextView.text = (outputTextView.text ?? "") + error.message
@@ -152,8 +165,20 @@ final class ViewController: UIViewController {
 
     // ===========================
 
-    @IBAction func pauseOrPlay(_ sender: UIButton) {
-        // TODO: Detect if the current state is pause, or play, and execute the respective function
+    @IBAction func continueExecution() {
+        continueExecutionButton.isEnabled = false
+        instructionsTableView.lineStoppedAt = -1
+        do {
+            try Engine.shared.continueExecution()
+        } catch {
+            let error = error as! RuntimeError
+            outputTextView.text = (outputTextView.text ?? "") + error.message
+            print(error.message)
+            let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+        }
     }
 
     /// Reads and processes instructions from the text view.
@@ -161,6 +186,17 @@ final class ViewController: UIViewController {
         let instructions = Engine.shared.process(text: sourceTextView.text ?? "")
         guard !instructions.isEmpty else { showFailureAlert(); return }
         instructionsTableView.items = instructions
+        do {
+            try Engine.shared.execute(instructions: instructions)
+        } catch {
+            let error = error as! RuntimeError
+            outputTextView.text = (outputTextView.text ?? "") + error.message
+            print(error.message)
+            let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+        }
     }
 
     private func showFailureAlert() {
@@ -216,6 +252,24 @@ final class ViewController: UIViewController {
             self.ioStackView.layoutIfNeeded()
         }
     }
+    
+    @IBAction func submitInputValue() {
+        guard inputTextField.isUserInteractionEnabled else { return }
+        guard let decimalString = inputTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !decimalString.isEmpty, let valueRead = Decimal(string: decimalString) else {
+            let alert = UIAlertController(title: NSLocalizedString("Failed to Read Value", comment: ""), message: NSLocalizedString("The value read can't be represented as a number. Please try again.", comment: ""), preferredStyle: .alert)
+            let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: { [unowned self] _ in
+                self.inputTextField.becomeFirstResponder()
+            })
+            alert.addAction(okAction)
+            present(alert, animated: true, completion: nil)
+            return
+        }
+        inputTextView.text = inputTextView.text.appending("\(decimalString)\n")
+        inputTextField.text = nil
+        inputTextField.isUserInteractionEnabled = false
+        inputTextField.resignFirstResponder()
+        Engine.shared.setValueRead(valueRead)
+    }
 
     // Convenience
     // TODO: Improve lagg when calculating the lineNumberTextView text
@@ -240,23 +294,6 @@ final class ViewController: UIViewController {
 }
 
 extension ViewController : UITextViewDelegate {
-
-    func textViewDidEndEditing(_ textView: UITextView) {
-        switch textView {
-        case sourceTextView: break
-        default:
-            guard let decimal = Decimal(string: textView.text) else {
-                let alert = UIAlertController(title: NSLocalizedString("Failed to Read Value", comment: ""), message: NSLocalizedString("The value read can't be represented as a number. Please try again.", comment: ""), preferredStyle: .alert)
-                let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: { _ in
-                    textView.becomeFirstResponder()
-                })
-                alert.addAction(okAction)
-                present(alert, animated: true, completion: nil)
-                return
-            }
-            Engine.shared.valueRead = decimal
-        }
-    }
 
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         switch textView {

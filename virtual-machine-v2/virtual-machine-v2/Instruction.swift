@@ -48,11 +48,11 @@ enum Instruction : Hashable {
     /// Assign M[s] into the given memory position. M[n] = M[s]; s = s - 1
     case assign(memoryIndex: Int)
     /// i = t
-    case jump(instructionIndex: Int)
+    case jump(label: String)
     /// If (M[s] == 0) then i = t else i = i + 1; s = s - 1
-    case jumpIfFalse(instructionIndex: Int)
-    /// No-op
-    case null
+    case jumpIfFalse(label: String)
+    /// No-op used to mark jump destinations.
+    case null(label: String)
     /// s = s + 1; M[s] = “next value read from user input”
     case read
     /// Print M[s]; s = s - 1
@@ -62,19 +62,20 @@ enum Instruction : Hashable {
     /// Copy a memory range of the given length, starting at M[s], into a memory array starting at the given memory head. Then s = s - 1
     case dealloc(memoryHead: Int, length: Int)
     /// s = s + 1; M[s] = currentInstructionPosition + 1; Instructionp[currentInstructionPosition] = instruction
-    case call(instructionIndex: Int)
+    case call(label: String)
     /// Return from a procedure.
     case `return`
 
     init?(rawInstruction: String) {
-        let components: [String] = rawInstruction.split(separator: " ", omittingEmptySubsequences: true).map { String($0) }
+        let sanitizedInstruction = rawInstruction.replacingOccurrences(of: ",", with: " ")
+        let components: [String] = sanitizedInstruction.split(separator: " ", omittingEmptySubsequences: true).map { String($0) }
         guard let opcode = components.first?.uppercased() else { return nil }
         switch opcode {
         case "LDC":
-            guard let constant = Decimal(string: components[1]) else { return nil }
+            guard let constantString = components[safe: 1], let constant = Decimal(string: constantString) else { return nil }
             self = .loadConstant(constant)
         case "LDV":
-            guard let memoryIndex = Int(components[1]) else { return nil }
+            guard let indexString = components[safe: 1], let memoryIndex = Int(indexString) else { return nil }
             self = .loadValue(memoryIndex: memoryIndex)
         case "ADD": self = .add
         case "SUB": self = .subtract
@@ -93,28 +94,33 @@ enum Instruction : Hashable {
         case "START": self = .start
         case "HLT": self = .halt
         case "STR":
-            guard let memoryIndex = Int(components[1]) else { return nil }
+            guard let indexString = components[safe: 1], let memoryIndex = Int(indexString) else { return nil }
             self = .assign(memoryIndex: memoryIndex)
         case "JMP":
-            guard let instructionIndex = Int(components[1]) else { return nil }
-            self = .jump(instructionIndex: instructionIndex)
+            guard let label = components[safe: 1] else { return nil }
+            self = .jump(label: label)
         case "JMPF":
-            guard let instructionIndex = Int(components[1]) else { return nil }
-            self = .jumpIfFalse(instructionIndex: instructionIndex)
-        case "NULL": self = .null
+            guard let label = components[safe: 1] else { return nil }
+            self = .jumpIfFalse(label: label)
         case "RD": self = .read
         case "PRN": self = .print
         case "ALLOC":
-            guard let memoryHead = Int(components[1]), let length = Int(components[2]) else { return nil }
+            guard let headString = components[safe: 1], let lengthString = components[safe: 2], let memoryHead = Int(headString), let length = Int(lengthString) else { return nil }
             self = .alloc(memoryHead: memoryHead, length: length)
         case "DALLOC":
-            guard let memoryHead = Int(components[1]), let length = Int(components[2]) else { return nil }
+            guard let headString = components[safe: 1], let lengthString = components[safe: 2], let memoryHead = Int(headString), let length = Int(lengthString) else { return nil }
             self = .dealloc(memoryHead: memoryHead, length: length)
         case "CALL":
-            guard let instructionIndex = Int(components[1]) else { return nil }
-            self = .call(instructionIndex: instructionIndex)
+            guard let label = components[safe: 1] else { return nil }
+            self = .call(label: label)
         case "RETURN": self = .return
-        default: return nil
+        default:
+            if components[safe: 1]?.uppercased() == "NULL" {
+                // The format of this instruction is non-standard (e.g. "L2 NULL"), so it needs special handling
+                self = .null(label: opcode)
+            } else {
+                return nil
+            }
         }
     }
 
@@ -151,24 +157,25 @@ enum Instruction : Hashable {
         }
     }
 
-    var argument1: String {
+    var argument1: String? {
         switch self {
         case .loadConstant(let constant): return "\(constant)"
         case .loadValue(let memoryIndex): return String(memoryIndex)
         case .assign(let memoryIndex): return String(memoryIndex)
         case .jump(let instructionPoint): return String(instructionPoint)
         case .jumpIfFalse(let instructionPoint): return String(instructionPoint)
+        case .null(let label): return label
         case .alloc(let memoryHead, _): return String(memoryHead)
         case .dealloc(let memoryHead, _): return String(memoryHead)
         case .call(let instructionPoint): return String(instructionPoint)
         case .add, .subtract, .multiply, .divide, .invert, .and, .or, .negate,
              .compareLesserThan, .compareGreaterThan, .compareEqual, .compareDifferent,
              .compareLesserThanOrEqualTo, .compareGreaterThanOrEqualTo, .start,
-             .halt, .null, .read, .print, .return: return ""
+             .halt, .read, .print, .return: return nil
         }
     }
 
-    var argument2: String {
+    var argument2: String? {
         switch self {
         case .alloc(_, let length): return String(length)
         case .dealloc(_, let length): return String(length)
@@ -176,7 +183,19 @@ enum Instruction : Hashable {
              .invert, .and, .or, .negate, .compareLesserThan, .compareGreaterThan,
              .compareEqual, .compareDifferent, .compareLesserThanOrEqualTo,
              .compareGreaterThanOrEqualTo, .start, .halt, .assign, .jump,
-             .jumpIfFalse, .null, .read, .print, .call, .return: return ""
+             .jumpIfFalse, .null, .read, .print, .call, .return: return nil
         }
+    }
+
+    var hasNoArguments: Bool {
+        return argument1 == nil && argument2 == nil
+    }
+
+    var hasStrictlyOneArgument: Bool {
+        return argument1 != nil && argument2 == nil
+    }
+
+    var hasStrictlyTwoArguments: Bool {
+        return argument1 != nil && argument2 != nil
     }
 }
