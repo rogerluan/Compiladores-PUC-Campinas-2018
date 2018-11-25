@@ -43,11 +43,11 @@ struct Token : CustomDebugStringConvertible {
         case s_comma
         case s_left_parenthesis
         case s_right_parenthesis
-        case s_greater
-        case s_greaterThanOrEqualTo
+        case s_greaterThan
+        case s_greaterThanThanOrEqualTo
         case s_equal
-        case s_lesser
-        case s_lesserThanOrEqualTo
+        case s_lessThan
+        case s_lessThanOrEqualTo
         case s_different
         case s_plus // TODO: Rename to sum?
         case s_minus // TODO: Rename to subtraction?

@@ -114,7 +114,7 @@ final class Engine {
             s -= 1
         case .negate:
             setValue(1 - memory[s], atIndex: s)
-        case .compareLesserThan:
+        case .compareLessThan:
             if memory[s - 1] < memory[s] {
                 setValue(1, atIndex: s - 1)
             } else {
@@ -142,7 +142,7 @@ final class Engine {
                 setValue(0, atIndex: s - 1)
             }
             s -= 1
-        case .compareLesserThanOrEqualTo:
+        case .compareLessThanOrEqualTo:
             if memory[s - 1] <= memory[s] {
                 setValue(1, atIndex: s - 1)
             } else {

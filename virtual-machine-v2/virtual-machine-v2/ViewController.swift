@@ -141,7 +141,7 @@ final class ViewController: UIViewController {
             do {
                 let instructions = try syntacticAnalyzer.analyzeProgram()
                 rawInstructions = syntacticAnalyzer.rawInstructions()
-//                println(NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: ""))
+                println(NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: ""))
                 testVirtualMachine(instructions: instructions, stepByStep: stepByStep)
             } catch {
                 let error = error as! CompilerError

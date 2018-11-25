@@ -433,7 +433,7 @@ final class SyntacticAnalyzer {
     private func analyzeExpression() throws -> Type {
         let lastTypeFound = try analyzeSimpleExpression()
         switch token?.symbol {
-        case .s_greater?, .s_greaterThanOrEqualTo?, .s_equal?, .s_lesser?, .s_lesserThanOrEqualTo?, .s_different?:
+        case .s_greaterThan?, .s_greaterThanThanOrEqualTo?, .s_equal?, .s_lessThan?, .s_lessThanOrEqualTo?, .s_different?:
             typeAnalyzer.analyzeTerm(token!)
             // Check type of first factor
             guard lastTypeFound == .int else { throw SemanticError(message: String(format: NSLocalizedString("Type mismatch: expected an integer at line %ld.", comment: ""), token!.line)) }

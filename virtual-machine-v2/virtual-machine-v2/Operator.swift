@@ -16,7 +16,7 @@ enum Operator : CustomStringConvertible, Comparable {
     case unaryPlus, unaryMinus, not
     case multiplication, division
     case sum, subtraction
-    case greater, lesser, greaterThanOrEqualTo, lesserThanOrEqualTo, equal, different
+    case greaterThan, lessThan, greaterThanOrEqualTo, lessThanOrEqualTo, equal, different
     case and
     case or
 
@@ -25,7 +25,7 @@ enum Operator : CustomStringConvertible, Comparable {
         case .unaryPlus, .unaryMinus, .not: return .unary
         case .multiplication, .division: return .multiplication
         case .sum, .subtraction: return .sum
-        case .greater, .lesser, .greaterThanOrEqualTo, .lesserThanOrEqualTo, .equal, .different: return .comparison
+        case .greaterThan, .lessThan, .greaterThanOrEqualTo, .lessThanOrEqualTo, .equal, .different: return .comparison
         case .and: return .and
         case .or: return .or
         }
@@ -40,10 +40,10 @@ enum Operator : CustomStringConvertible, Comparable {
         case .division: return " / "
         case .sum: return " + "
         case .subtraction: return " - "
-        case .greater: return " > "
-        case .lesser: return " < "
+        case .greaterThan: return " > "
+        case .lessThan: return " < "
         case .greaterThanOrEqualTo: return " >= "
-        case .lesserThanOrEqualTo: return " <= "
+        case .lessThanOrEqualTo: return " <= "
         case .equal: return " == "
         case .different: return " != "
         case .and: return " && "

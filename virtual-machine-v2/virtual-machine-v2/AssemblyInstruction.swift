@@ -20,11 +20,11 @@ enum AssemblyInstruction : Hashable {
     case and
     case or
     case negate
-    case compareLesserThan
+    case compareLessThan
     case compareGreaterThan
     case compareEqual
     case compareDifferent
-    case compareLesserThanOrEqualTo
+    case compareLessThanOrEqualTo
     case compareGreaterThanOrEqualTo
     case start
     case halt
@@ -52,11 +52,11 @@ enum AssemblyInstruction : Hashable {
         case .and: return "AND"
         case .or: return "OR"
         case .negate: return "NEG"
-        case .compareLesserThan: return "CME"
+        case .compareLessThan: return "CME"
         case .compareGreaterThan: return "CMA"
         case .compareEqual: return "CEQ"
         case .compareDifferent: return "CDIF"
-        case .compareLesserThanOrEqualTo: return "CMEQ"
+        case .compareLessThanOrEqualTo: return "CMEQ"
         case .compareGreaterThanOrEqualTo: return "CMAQ"
         case .start: return "START"
         case .halt: return "HLT"
@@ -87,8 +87,8 @@ enum AssemblyInstruction : Hashable {
         case .returnFunction(let memoryHead, _): return memoryHead != nil ? String(memoryHead!) : nil
         case .call(let instructionPoint): return String(instructionPoint)
         case .add, .subtract, .multiply, .divide, .invert, .and, .or, .negate,
-             .compareLesserThan, .compareGreaterThan, .compareEqual, .compareDifferent,
-             .compareLesserThanOrEqualTo, .compareGreaterThanOrEqualTo, .start,
+             .compareLessThan, .compareGreaterThan, .compareEqual, .compareDifferent,
+             .compareLessThanOrEqualTo, .compareGreaterThanOrEqualTo, .start,
              .halt, .read, .print, .return: return nil
         }
     }
@@ -99,8 +99,8 @@ enum AssemblyInstruction : Hashable {
         case .dealloc(_, let length): return String(length)
         case .returnFunction(_, let length): return length != nil ? String(length!) : nil
         case .loadConstant, .loadValue, .add, .subtract, .multiply, .divide,
-             .invert, .and, .or, .negate, .compareLesserThan, .compareGreaterThan,
-             .compareEqual, .compareDifferent, .compareLesserThanOrEqualTo,
+             .invert, .and, .or, .negate, .compareLessThan, .compareGreaterThan,
+             .compareEqual, .compareDifferent, .compareLessThanOrEqualTo,
              .compareGreaterThanOrEqualTo, .start, .halt, .assign, .jump,
              .jumpIfFalse, .null, .read, .print, .call, .return: return nil
         }

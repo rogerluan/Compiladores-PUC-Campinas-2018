@@ -202,14 +202,14 @@ final class LexicalAnalyzer {
         case ("=", _): symbol = .s_equal
         case ("<", "="):
             relationalOperator += String(nextCharacter!)
-            symbol = .s_lesserThanOrEqualTo
+            symbol = .s_lessThanOrEqualTo
             nextCharacter = readNextCharacter()
         case (">", "="):
             relationalOperator += String(nextCharacter!)
-            symbol = .s_greaterThanOrEqualTo
+            symbol = .s_greaterThanThanOrEqualTo
             nextCharacter = readNextCharacter()
-        case ("<", _): symbol = .s_lesser
-        case (">", _): symbol = .s_greater
+        case ("<", _): symbol = .s_lessThan
+        case (">", _): symbol = .s_greaterThan
         case ("!", "="):
             relationalOperator += String(nextCharacter!)
             symbol = .s_different

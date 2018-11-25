@@ -30,7 +30,7 @@ enum Instruction : Hashable {
     /// M[s] = 1 - M[s]
     case negate
     /// If (M[s-1] < M[s]) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
-    case compareLesserThan
+    case compareLessThan
     /// If (M[s-1] > M[s]) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
     case compareGreaterThan
     /// If (M[s-1] == M[s]) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
@@ -38,7 +38,7 @@ enum Instruction : Hashable {
     /// If (M[s-1] != M[s]) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
     case compareDifferent
     /// If (M[s-1] ≤ M[s]) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
-    case compareLesserThanOrEqualTo
+    case compareLessThanOrEqualTo
     /// If (M[s-1] ≥ M[s]) then M[s-1] = 1 else M[s-1] = 0; s = s - 1
     case compareGreaterThanOrEqualTo
     /// S = -1
@@ -87,11 +87,11 @@ enum Instruction : Hashable {
         case "AND": self = .and
         case "OR": self = .or
         case "NEG": self = .negate
-        case "CME": self = .compareLesserThan
+        case "CME": self = .compareLessThan
         case "CMA": self = .compareGreaterThan
         case "CEQ": self = .compareEqual
         case "CDIF": self = .compareDifferent
-        case "CMEQ": self = .compareLesserThanOrEqualTo
+        case "CMEQ": self = .compareLessThanOrEqualTo
         case "CMAQ": self = .compareGreaterThanOrEqualTo
         case "START": self = .start
         case "HLT": self = .halt
@@ -144,11 +144,11 @@ enum Instruction : Hashable {
         case .and: return "AND"
         case .or: return "OR"
         case .negate: return "NEG"
-        case .compareLesserThan: return "CME"
+        case .compareLessThan: return "CME"
         case .compareGreaterThan: return "CMA"
         case .compareEqual: return "CEQ"
         case .compareDifferent: return "CDIF"
-        case .compareLesserThanOrEqualTo: return "CMEQ"
+        case .compareLessThanOrEqualTo: return "CMEQ"
         case .compareGreaterThanOrEqualTo: return "CMAQ"
         case .start: return "START"
         case .halt: return "HLT"
@@ -179,8 +179,8 @@ enum Instruction : Hashable {
         case .returnFunction(let memoryHead, _): return memoryHead != nil ? String(memoryHead!) : nil
         case .call(let instructionPoint): return String(instructionPoint)
         case .add, .subtract, .multiply, .divide, .invert, .and, .or, .negate,
-             .compareLesserThan, .compareGreaterThan, .compareEqual, .compareDifferent,
-             .compareLesserThanOrEqualTo, .compareGreaterThanOrEqualTo, .start,
+             .compareLessThan, .compareGreaterThan, .compareEqual, .compareDifferent,
+             .compareLessThanOrEqualTo, .compareGreaterThanOrEqualTo, .start,
              .halt, .read, .print, .return: return nil
         }
     }
@@ -191,8 +191,8 @@ enum Instruction : Hashable {
         case .dealloc(_, let length): return String(length)
         case .returnFunction(_, let length): return length != nil ? String(length!) : nil
         case .loadConstant, .loadValue, .add, .subtract, .multiply, .divide,
-             .invert, .and, .or, .negate, .compareLesserThan, .compareGreaterThan,
-             .compareEqual, .compareDifferent, .compareLesserThanOrEqualTo,
+             .invert, .and, .or, .negate, .compareLessThan, .compareGreaterThan,
+             .compareEqual, .compareDifferent, .compareLessThanOrEqualTo,
              .compareGreaterThanOrEqualTo, .start, .halt, .assign, .jump,
              .jumpIfFalse, .null, .read, .print, .call, .return: return nil
         }
