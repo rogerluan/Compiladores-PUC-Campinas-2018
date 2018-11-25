@@ -24,11 +24,11 @@ final class TypeAnalyzer {
         case .s_false: output.append(TokenType.operand(term)) // Done
         case .s_left_parenthesis: op = .leftParenthesis // Done
         case .s_right_parenthesis: op = .rightParenthesis // Done
-        case .s_greater: op = .operator(.greater)
-        case .s_greaterThanOrEqualTo: op = .operator(.greaterThanOrEqualTo)
+        case .s_greaterThan: op = .operator(.greaterThan)
+        case .s_greaterThanThanOrEqualTo: op = .operator(.greaterThanOrEqualTo)
         case .s_equal: op = .operator(.equal)
-        case .s_lesser: op = .operator(.lesser)
-        case .s_lesserThanOrEqualTo: op = .operator(.lesserThanOrEqualTo)
+        case .s_lessThan: op = .operator(.lessThan)
+        case .s_lessThanOrEqualTo: op = .operator(.lessThanOrEqualTo)
         case .s_different: op = .operator(.different)
         case .s_plus: op = isUnary ? .operator(.unaryPlus) : .operator(.sum)
         case .s_minus: op = isUnary ? .operator(.unaryMinus) : .operator(.subtraction)

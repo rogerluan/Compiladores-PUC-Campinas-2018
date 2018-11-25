@@ -40,10 +40,15 @@ final class ViewController: UIViewController {
     private let showRightPanelOnLaunch = true
 
     private var previousNumberOfLines = 0
+    private var screenSettings: [String] = []
     private var rawInstructions = ""
     private var sourceTextViewText: String? {
         get { return sourceTextView.text }
-        set { sourceTextView.text = newValue?.trimmingCharacters(in: .whitespacesAndNewlines); handleSourceTextViewTextChanged() }
+        set {
+            sourceTextView.text = newValue?.trimmingCharacters(in: .whitespacesAndNewlines)
+            screenSettings.append(sourceTextView.text ?? "") // Do this here so it only tracks programmatically set text changes
+            handleSourceTextViewTextChanged()
+        }
     }
 
     override func viewDidLoad() {
@@ -56,7 +61,7 @@ final class ViewController: UIViewController {
             self.inputTextField.becomeFirstResponder()
         }
         Engine.shared.printHandler = { [unowned self] value in
-            self.outputTextView.text = self.outputTextView.text.appending("\(value)\n")
+            self.println("\(value)")
         }
         Engine.shared.memoryChangedHandler = { [unowned self] in
             self.memoryTableView.handleMemoryChanged()
@@ -109,11 +114,16 @@ final class ViewController: UIViewController {
     }
 
     @IBAction func run(_ sender: UIButton) {
-        // TODO: guard against lack of file
-        // TODO: run the file
-        // TODO: Implement different run options (e.g. step by step, or free running)
-        testAnalyzers()
-//        testVirtualMachine(Engine.shared.process(text: sourceTextView.text ?? ""))
+        let alert = UIAlertController(title: NSLocalizedString("How would you like to run this code?", comment: ""), message: nil, preferredStyle: .actionSheet)
+        let stepByStepAction = UIAlertAction(title: NSLocalizedString("Step by step", comment: ""), style: .default) { [unowned self] _ in self.testAnalyzers(stepByStep: true) }
+        let freeRunningAction = UIAlertAction(title: NSLocalizedString("Free Running", comment: ""), style: .default) { [unowned self] _ in self.testAnalyzers(stepByStep: false) }
+        alert.addAction(stepByStepAction)
+        alert.addAction(freeRunningAction)
+        if let popoverController = alert.popoverPresentationController {
+            popoverController.sourceView = sender
+            popoverController.sourceRect = CGRect(x: sender.bounds.midX, y: sender.bounds.maxY, width: 0, height: 0)
+        }
+        present(alert, animated: true, completion: nil)
     }
 
     @IBAction func exportAssemblyCode() {
@@ -126,16 +136,16 @@ final class ViewController: UIViewController {
 
     // ===========================
     // Debugging area
-    private func testAnalyzers() {
+    private func testAnalyzers(stepByStep: Bool) {
         if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? ""), let syntacticAnalyzer = SyntacticAnalyzer(lexicalAnalyzer: lexicalAnalyzer) {
             do {
                 let instructions = try syntacticAnalyzer.analyzeProgram()
                 rawInstructions = syntacticAnalyzer.rawInstructions()
-//                outputTextView.text += NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors\n", comment: "")
-                testVirtualMachine(instructions: instructions)
+                println(NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: ""))
+                testVirtualMachine(instructions: instructions, stepByStep: stepByStep)
             } catch {
                 let error = error as! CompilerError
-                outputTextView.text = (outputTextView.text ?? "") + error.message
+                println(error.message)
                 print(error.message)
                 let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
                 let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -151,7 +161,7 @@ final class ViewController: UIViewController {
     }
 
     /// Reads and processes instructions from the text view.
-    private func testVirtualMachine(instructions: [Instruction]) {
+    private func testVirtualMachine(instructions: [Instruction], stepByStep: Bool) {
         guard !instructions.isEmpty else {
             let alert = UIAlertController(title: NSLocalizedString("Failed to Compile", comment: ""), message: NSLocalizedString("The source code failed to compile or returned no instructions.", comment: ""), preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -161,10 +171,10 @@ final class ViewController: UIViewController {
         }
         instructionsTableView.items = instructions
         do {
-            try Engine.shared.execute(instructions: instructions)
+            try Engine.shared.execute(instructions: instructions, stepByStep: stepByStep)
         } catch {
             let error = error as! RuntimeError
-            outputTextView.text = (outputTextView.text ?? "") + error.message
+            println(error.message)
             print(error.message)
             let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -182,7 +192,7 @@ final class ViewController: UIViewController {
             try Engine.shared.continueExecution()
         } catch {
             let error = error as! RuntimeError
-            outputTextView.text = (outputTextView.text ?? "") + error.message
+            println(error.message)
             print(error.message)
             let alert = UIAlertController(title: error.title, message: error.message, preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -249,7 +259,12 @@ final class ViewController: UIViewController {
             present(alert, animated: true, completion: nil)
             return
         }
-        inputTextView.text = inputTextView.text.appending("\(decimalString)\n")
+        // Append input text to the input text view
+        inputTextView.text += "\(decimalString)\n"
+        // Scroll to bottom
+        let bottom = NSMakeRange(inputTextView.text.count - 1, 1)
+        inputTextView.scrollRangeToVisible(bottom)
+
         inputTextField.text = nil
         inputTextField.isUserInteractionEnabled = false
         inputTextField.resignFirstResponder()
@@ -275,6 +290,14 @@ final class ViewController: UIViewController {
         for i in 1...numberOfLines {
             lineNumberTextView.text += "\(i)\n"
         }
+    }
+
+    private func println(_ string: String) {
+        // Append text and add line break
+        outputTextView.text += "\(string)\n"
+        // Scroll to bottom
+        let bottom = NSMakeRange(outputTextView.text.count - 1, 1)
+        outputTextView.scrollRangeToVisible(bottom)
     }
 }
 
