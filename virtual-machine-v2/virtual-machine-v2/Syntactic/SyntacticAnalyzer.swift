@@ -122,7 +122,7 @@ final class SyntacticAnalyzer {
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 while let token = self.token, token.symbol == .s_identifier {
-                    variableCount += try analyzeVariables()
+                    variableCount += try analyzeVariables(localVariableCount: variableCount)
                     if let token = self.token {
                         guard token.symbol == .s_semicolon else { throw SyntacticError(expected: "`;`", butFound: token) }
                         try readNextTokenIfPossible()
@@ -140,17 +140,15 @@ final class SyntacticAnalyzer {
     /// Analyzes a `<declaração de variáveis>` structure defined in the formal language grammar.
     ///
     /// - Returns: Number of variables read.
-    private func analyzeVariables() throws -> Int {
-        var variableCount = 0
+    private func analyzeVariables(localVariableCount: Int) throws -> Int {
+        var variableCount = localVariableCount // Make it mutable
         repeat {
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 let entry = table.searchDeclaration(of: [ .variable ], with: token.lexeme, in: .local)
                 guard entry == nil else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` at line %ld was already defined.", comment: ""), token.lexeme, token.line)) }
+                let variableIndex = generator.globalVariableCount + variableCount
                 variableCount += 1
-                // Technically we could declare these before incrementing the variable count variable, but the way it's written here is
-                // more correct, semantically: the index should be the variable count minus one.
-                let variableIndex = generator.globalVariableCount + variableCount - 1
                 table.addEntry(VariableEntry(lexeme: token.lexeme, type: nil, index: variableIndex))
                 try readNextTokenIfPossible()
                 if let token = self.token {
@@ -412,6 +410,7 @@ final class SyntacticAnalyzer {
             generator.generateInstruction(.jumpIfFalse(label: elseLabel))
             try readNextTokenIfPossible()
             try analyzeSimpleCommand()
+            if functionAnalysisTuple != nil { semanticAnalyzer.handleBranchClosing() }
             if self.token?.symbol == .s_else {
                 if functionAnalysisTuple != nil { semanticAnalyzer.handleElseStatementFound() }
                 let quitIfStatementLabel = branchLabel // Freeze
@@ -420,11 +419,11 @@ final class SyntacticAnalyzer {
                 try readNextTokenIfPossible()
                 try analyzeSimpleCommand()
                 generator.generateInstruction(.null(label: quitIfStatementLabel))
+                if functionAnalysisTuple != nil { semanticAnalyzer.handleBranchClosing() }
             } else {
                 // The `if` being analyzed doesn't have an `else` (which's fine).
                 generator.generateInstruction(.null(label: elseLabel))
             }
-            if functionAnalysisTuple != nil { semanticAnalyzer.handleBranchClosing() }
         } else {
             throw SyntacticError(expected: "`entao`", butFoundEOF: ())
         }

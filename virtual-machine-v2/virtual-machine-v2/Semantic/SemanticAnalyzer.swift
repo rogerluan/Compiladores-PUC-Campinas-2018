@@ -27,11 +27,7 @@ final class SemanticAnalyzer {
             if alwaysReturns {
                 return true
             } else {
-                if nodes.isEmpty {
-                    return false
-                } else {
-                    return nodes.contains { $0.alwaysReturns } ? true : nodes.allSatisfy { $0.validate() }
-                }
+                return nodes.isEmpty ? false : nodes.allSatisfy { $0.alwaysReturns }
             }
         }
     }
@@ -46,7 +42,11 @@ final class SemanticAnalyzer {
     func handleIfStatementFound() {
         let ifNode = Node(parent: currentNode)
         let elseNode = Node(parent: currentNode)
-        ifNode.elseNode = elseNode
+        // Assigning is not necessary if the current node returns explicitly.
+        // But assigning is not allowed if the else node always returns, so we check if the current node always returns.
+        if !currentNode.alwaysReturns {
+            currentNode.elseNode = elseNode
+        }
         currentNode.nodes += [ ifNode, elseNode ]
         currentNode = ifNode
     }
