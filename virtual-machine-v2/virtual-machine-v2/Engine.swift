@@ -46,7 +46,7 @@ final class Engine {
         return pc[line].1
     }
 
-    func execute(instructions: [Instruction]) throws {
+    func execute(instructions: [Instruction], stepByStep: Bool) throws {
         reset()
         // Populate the label map
         for (index, instruction) in instructions.enumerated() {
@@ -55,7 +55,7 @@ final class Engine {
             default: break
             }
         }
-        let breakpoints = Array(repeating: false, count: instructions.count)
+        let breakpoints = Array(repeating: stepByStep, count: instructions.count)
         pc = Array(zip(instructions, breakpoints))
         try executeNextInstruction()
     }
