@@ -10,7 +10,7 @@ import Foundation
 
 enum Instruction : Hashable {
     /// s = s + 1; M[s] = k
-    case loadConstant(Decimal)
+    case loadConstant(Int)
     /// s = s + 1; M[s] = M[n]
     case loadValue(memoryIndex: Int)
     /// M[s-1] = M[s-1] + M[s]; s = s - 1
@@ -74,7 +74,7 @@ enum Instruction : Hashable {
         guard let opcode = components.first?.uppercased() else { return nil }
         switch opcode {
         case "LDC":
-            guard let constantString = components[safe: 1], let constant = Decimal(string: constantString) else { return nil }
+            guard let constantString = components[safe: 1], let constant = Int(constantString) else { return nil }
             self = .loadConstant(constant)
         case "LDV":
             guard let indexString = components[safe: 1], let memoryIndex = Int(indexString) else { return nil }

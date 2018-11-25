@@ -12,7 +12,7 @@ import UIKit
 final class Engine {
     static let shared = Engine()
     /// A stack that represents the memory of the virtual machine.
-    var memory: [Decimal] = [] { didSet { memoryChangedHandler?() } } // Public because it's used as the MemoryTableView's data source.
+    var memory: [Int] = [] { didSet { memoryChangedHandler?() } } // Public because it's used as the MemoryTableView's data source.
     /// Program counter, and whether it has a breakpoint or not
     private var pc: [(Instruction, Bool)] = []
     private var delay: TimeInterval = 1
@@ -25,7 +25,7 @@ final class Engine {
 
     var finishHandler: (() -> Void)? = nil
     var readHandler: (() -> Void)? = nil
-    var printHandler: ((Decimal) -> Void)? = nil
+    var printHandler: ((Int) -> Void)? = nil
     var memoryChangedHandler: (() -> Void)? = nil
     var programCounterChangedHandler: ((Int) -> Void)? = nil
     var executionPausedHandler: ((Int) -> Void)? = nil
@@ -192,7 +192,7 @@ final class Engine {
             }
         case .call(let label):
             s += 1
-            setValue(Decimal(i + 1), atIndex: s)
+            setValue(i + 1, atIndex: s)
             nextInstructionIndex = labelMap[label]!
         case .return:
             nextInstructionIndex = Int(exactly: memory[s] as NSNumber)!
@@ -219,7 +219,7 @@ final class Engine {
         try executeNextInstruction()
     }
 
-    func setValueRead(_ valueRead: Decimal) {
+    func setValueRead(_ valueRead: Int) {
         setValue(valueRead, atIndex: s)
         i += 1
         // TODO: Move this call away from here?
@@ -235,7 +235,7 @@ final class Engine {
         labelMap = [:]
     }
 
-    private func setValue(_ value: Decimal, atIndex index: Int) {
+    private func setValue(_ value: Int, atIndex index: Int) {
         if memory.indices.contains(index) {
             // It's already allocated, just assign
             memory[index] = value

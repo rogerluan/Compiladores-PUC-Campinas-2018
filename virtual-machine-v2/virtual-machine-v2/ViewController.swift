@@ -250,7 +250,7 @@ final class ViewController: UIViewController {
     
     @IBAction func submitInputValue() {
         guard inputTextField.isUserInteractionEnabled else { return }
-        guard let decimalString = inputTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !decimalString.isEmpty, let valueRead = Decimal(string: decimalString) else {
+        guard let numberString = inputTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines), !numberString.isEmpty, let valueRead = Int(numberString) else {
             let alert = UIAlertController(title: NSLocalizedString("Failed to Read Value", comment: ""), message: NSLocalizedString("The value read can't be represented as a number. Please try again.", comment: ""), preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: { [unowned self] _ in
                 self.inputTextField.becomeFirstResponder()
@@ -260,7 +260,7 @@ final class ViewController: UIViewController {
             return
         }
         // Append input text to the input text view
-        inputTextView.text += "\(decimalString)\n"
+        inputTextView.text += "\(numberString)\n"
         // Scroll to bottom
         let bottom = NSMakeRange(inputTextView.text.count - 1, 1)
         inputTextView.scrollRangeToVisible(bottom)

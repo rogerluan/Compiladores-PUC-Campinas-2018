@@ -16,7 +16,7 @@ final class MemoryCell : UITableViewCell {
     static let reuseIdentifier = "MemoryCell"
 
     var index: Int! { didSet { handleIndexChanged() } }
-    var value: Decimal! { didSet { handleValueChanged() } }
+    var value: Int! { didSet { handleValueChanged() } }
     var isCurrentIndex: Bool = false { didSet { handleIsCurrentIndexChanged() } }
 
     // MARK: Initialization
