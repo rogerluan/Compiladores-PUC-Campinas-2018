@@ -27,12 +27,14 @@ final class ViewController: UIViewController {
     @IBOutlet private var debugAreaButtonsStackView: UIStackView!
     @IBOutlet private var ioStackView: UIStackView!
 
-    @IBOutlet private var continueExecutionButton: UIButton!
+    @IBOutlet private var exportButton: UIButton!
     @IBOutlet private var leftPanelToggleButton: UIButton!
     @IBOutlet private var bottomPanelToggleButton: UIButton!
     @IBOutlet private var rightPanelToggleButton: UIButton!
+    @IBOutlet private var continueExecutionButton: UIButton!
     @IBOutlet private var debugAreaLeftPanelToggleButton: UIButton!
     @IBOutlet private var debugAreaRightPanelToggleButton: UIButton!
+    @IBOutlet private var inputSubmissionButton: UIButton!
 
     // MARK: Settings
     private let showDebugAreaLeftPanelOnLaunch = true
@@ -41,7 +43,7 @@ final class ViewController: UIViewController {
 
     private var previousNumberOfLines = 0
     private var screenSettings: [String] = []
-    private var rawInstructions = ""
+    private var rawInstructions = "" { didSet { exportButton.isEnabled = !rawInstructions.isEmpty  } }
     private var sourceTextViewText: String? {
         get { return sourceTextView.text }
         set {
@@ -58,6 +60,7 @@ final class ViewController: UIViewController {
         }
         Engine.shared.readHandler = { [unowned self] in
             self.inputTextField.isUserInteractionEnabled = true
+            self.inputSubmissionButton.isEnabled = true
             self.inputTextField.becomeFirstResponder()
         }
         Engine.shared.printHandler = { [unowned self] value in
@@ -127,11 +130,12 @@ final class ViewController: UIViewController {
     }
 
     @IBAction func exportAssemblyCode() {
-        UIPasteboard.general.string = rawInstructions
-        let alert = UIAlertController(title: NSLocalizedString("Instructions Copied!", comment: ""), message: NSLocalizedString("The assembly instructions have been copied to your clipboard.", comment: ""), preferredStyle: .alert)
-        let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
-        alert.addAction(okAction)
-        present(alert, animated: true, completion: nil)
+        let shareActivity = UIActivityViewController(activityItems: [ rawInstructions ], applicationActivities: nil)
+        if let popoverController = shareActivity.popoverPresentationController {
+            popoverController.sourceView = exportButton
+            popoverController.sourceRect = CGRect(x: exportButton.bounds.midX, y: exportButton.bounds.maxY, width: 0, height: 0)
+        }
+        present(shareActivity, animated: true, completion: nil)
     }
 
     // ===========================
@@ -266,8 +270,9 @@ final class ViewController: UIViewController {
         inputTextView.scrollRangeToVisible(bottom)
 
         inputTextField.text = nil
-        inputTextField.isUserInteractionEnabled = false
         inputTextField.resignFirstResponder()
+        inputTextField.isUserInteractionEnabled = false
+        inputSubmissionButton.isEnabled = false
         Engine.shared.setValueRead(valueRead)
     }
 
@@ -310,6 +315,17 @@ extension ViewController : UITextViewDelegate {
             if text == "\n" {
                 textView.resignFirstResponder()
             }
+        }
+        return true
+    }
+}
+
+extension ViewController : UITextFieldDelegate {
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        switch textField {
+        case inputTextField: submitInputValue()
+        default: break
         }
         return true
     }

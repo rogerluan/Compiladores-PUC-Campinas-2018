@@ -65,10 +65,13 @@
                                             <action selector="run:" destination="BYZ-38-t0r" eventType="touchUpInside" id="nzZ-kd-xhB"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="255" horizontalCompressionResistancePriority="755" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UjA-kC-l03">
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalCompressionResistancePriority="755" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="UjA-kC-l03">
                                         <rect key="frame" x="120" y="0.0" width="44" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" secondItem="UjA-kC-l03" secondAttribute="height" multiplier="1:1" id="W4n-2A-igR"/>
+                                        </constraints>
                                         <inset key="imageEdgeInsets" minX="8" minY="8" maxX="8" maxY="8"/>
-                                        <state key="normal" title="Copy Instructions">
+                                        <state key="normal" image="toolbar-share">
                                             <color key="titleColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         </state>
                                         <userDefinedRuntimeAttributes>
@@ -188,8 +191,8 @@
                                                                     <rect key="frame" x="0.0" y="0.0" width="200" height="32"/>
                                                                     <autoresizingMask key="autoresizingMask"/>
                                                                     <subviews>
-                                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZSS-g6-eZy">
-                                                                            <rect key="frame" x="16" y="2" width="27.5" height="27.5"/>
+                                                                        <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZSS-g6-eZy">
+                                                                            <rect key="frame" x="8" y="2" width="27.5" height="27.5"/>
                                                                             <constraints>
                                                                                 <constraint firstAttribute="width" secondItem="ZSS-g6-eZy" secondAttribute="height" multiplier="1:1" id="4Ue-Be-hE5"/>
                                                                             </constraints>
@@ -199,24 +202,35 @@
                                                                             </connections>
                                                                         </button>
                                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="INT 21H" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="IZW-Zu-yog">
-                                                                            <rect key="frame" x="59.5" y="2" width="84.5" height="27.5"/>
+                                                                            <rect key="frame" x="51.5" y="2" width="140.5" height="27.5"/>
                                                                             <fontDescription key="fontDescription" name="CourierNewPSMT" family="Courier New" pointSize="14"/>
                                                                             <color key="textColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                        </label>
+                                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="48" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VOm-Gc-2Vn">
+                                                                            <rect key="frame" x="8" y="2" width="27.5" height="27.5"/>
+                                                                            <fontDescription key="fontDescription" type="system" weight="ultraLight" pointSize="12"/>
+                                                                            <color key="textColor" red="0.35294117650000001" green="0.35294117650000001" blue="0.35294117650000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                             <nil key="highlightedColor"/>
                                                                         </label>
                                                                     </subviews>
                                                                     <constraints>
                                                                         <constraint firstItem="IZW-Zu-yog" firstAttribute="leading" secondItem="ZSS-g6-eZy" secondAttribute="trailing" constant="16" id="5cr-nn-g7X"/>
+                                                                        <constraint firstItem="VOm-Gc-2Vn" firstAttribute="bottom" secondItem="ZSS-g6-eZy" secondAttribute="bottom" id="7Zk-kT-Q7i"/>
+                                                                        <constraint firstItem="VOm-Gc-2Vn" firstAttribute="trailing" secondItem="ZSS-g6-eZy" secondAttribute="trailing" id="Guy-ZD-n4b"/>
                                                                         <constraint firstItem="ZSS-g6-eZy" firstAttribute="top" secondItem="z2p-Ap-RNT" secondAttribute="top" constant="2" id="HCf-Id-7H1"/>
-                                                                        <constraint firstAttribute="trailing" secondItem="IZW-Zu-yog" secondAttribute="trailing" constant="16" id="YYa-vK-Ve6"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="IZW-Zu-yog" secondAttribute="trailing" constant="8" id="YYa-vK-Ve6"/>
                                                                         <constraint firstAttribute="bottom" secondItem="IZW-Zu-yog" secondAttribute="bottom" constant="2" id="ZoK-N6-f3c"/>
+                                                                        <constraint firstItem="VOm-Gc-2Vn" firstAttribute="leading" secondItem="ZSS-g6-eZy" secondAttribute="leading" id="iFc-MM-dbW"/>
                                                                         <constraint firstAttribute="bottom" secondItem="ZSS-g6-eZy" secondAttribute="bottom" constant="2" id="qK1-17-HPJ"/>
-                                                                        <constraint firstItem="ZSS-g6-eZy" firstAttribute="leading" secondItem="z2p-Ap-RNT" secondAttribute="leading" constant="16" id="qgP-Hj-y74"/>
+                                                                        <constraint firstItem="ZSS-g6-eZy" firstAttribute="leading" secondItem="z2p-Ap-RNT" secondAttribute="leading" constant="8" id="qgP-Hj-y74"/>
+                                                                        <constraint firstItem="VOm-Gc-2Vn" firstAttribute="top" secondItem="ZSS-g6-eZy" secondAttribute="top" id="vHF-Og-BD3"/>
                                                                         <constraint firstItem="IZW-Zu-yog" firstAttribute="top" secondItem="z2p-Ap-RNT" secondAttribute="top" constant="2" id="xJG-T0-rMc"/>
                                                                     </constraints>
                                                                 </tableViewCellContentView>
                                                                 <connections>
                                                                     <outlet property="breakpointButton" destination="ZSS-g6-eZy" id="DcP-14-MI7"/>
+                                                                    <outlet property="indexLabel" destination="VOm-Gc-2Vn" id="d85-Sj-OHS"/>
                                                                     <outlet property="label" destination="IZW-Zu-yog" id="kKo-em-WNc"/>
                                                                 </connections>
                                                             </tableViewCell>
@@ -252,46 +266,6 @@
                                                             <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="fFx-Lx-wrU" userLabel="Source Code Editor">
                                                                 <rect key="frame" x="40" y="0.0" width="870" height="664"/>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                <mutableString key="text">programa testeFatorialRecursivo;  {calcula o fatorial recursivamente - OK}
-  var x, y: inteiro;
-
-  { Um procedimento qualquer que não será executado }
-  procedimento procedimentoNaoExecutado;
-    var x, y, total: inteiro;
-
-    procedimento dobro;
-    var dobroCalculado: inteiro;
-    inicio
-      dobroCalculado := total * 2;
-      escreva(dobroCalculado)
-    fim; { dobro }
-
-  inicio
-      leia(x);
-      leia(y);
-      total := x + y;
-      escreva(total); { soma dos numeros lidos}
-      dobro { Calcula o dobro da soma }
-  fim { procedimentoNaoExecutado };
-
-  { Calcula fatorial de um numero lido }
-  procedimento calcularFatorial;
-    var z: inteiro;
-  inicio
-    z := x;
-    x := x - 1;
-    se z &gt; 1 entao 
-      calcularFatorial {recursivo} 
-    senao
-      y := 1;
-    y := y * z               
-  fim; { calcularFatorial }
-
-inicio
-  leia(x);
-  calcularFatorial;
-  escreva(y)
-fim.</mutableString>
                                                                 <color key="textColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 <fontDescription key="fontDescription" name="CourierNewPSMT" family="Courier New" pointSize="12"/>
                                                                 <textInputTraits key="textInputTraits" autocorrectionType="no"/>
@@ -447,7 +421,7 @@ fim.</mutableString>
                                                         <rect key="frame" x="0.0" y="192" width="1118" height="48"/>
                                                         <subviews>
                                                             <textField opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" textAlignment="natural" clearsOnBeginEditing="YES" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="zJV-kN-WZS" userLabel="Input Text Field">
-                                                                <rect key="frame" x="0.0" y="0.0" width="982" height="48"/>
+                                                                <rect key="frame" x="0.0" y="0.0" width="997" height="48"/>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                 <color key="textColor" red="0.1176470588" green="0.1176470588" blue="0.1176470588" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -467,13 +441,10 @@ fim.</mutableString>
                                                                     <outlet property="delegate" destination="BYZ-38-t0r" id="PAc-A0-4UQ"/>
                                                                 </connections>
                                                             </textField>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qqK-GY-TlE">
-                                                                <rect key="frame" x="990" y="0.0" width="128" height="48"/>
+                                                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qqK-GY-TlE">
+                                                                <rect key="frame" x="1005" y="0.0" width="113" height="48"/>
                                                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="width" constant="128" id="Z75-5W-fA4"/>
-                                                                </constraints>
-                                                                <inset key="titleEdgeInsets" minX="8" minY="0.0" maxX="8" maxY="0.0"/>
+                                                                <inset key="contentEdgeInsets" minX="32" minY="0.0" maxX="32" maxY="0.0"/>
                                                                 <state key="normal" title="Submit"/>
                                                                 <userDefinedRuntimeAttributes>
                                                                     <userDefinedRuntimeAttribute type="color" keyPath="borderColor">
@@ -667,6 +638,8 @@ fim.</mutableString>
                         <outlet property="debugAreaContainer" destination="fJ3-AY-ar1" id="kaf-3M-Wf7"/>
                         <outlet property="debugAreaLeftPanelToggleButton" destination="mmw-u2-HW5" id="kZQ-Ca-KXm"/>
                         <outlet property="debugAreaRightPanelToggleButton" destination="QmY-s0-RkV" id="PfA-nl-zEb"/>
+                        <outlet property="exportButton" destination="UjA-kC-l03" id="zyZ-up-sVO"/>
+                        <outlet property="inputSubmissionButton" destination="qqK-GY-TlE" id="JXV-u7-fpg"/>
                         <outlet property="inputTextField" destination="zJV-kN-WZS" id="73k-G0-gZq"/>
                         <outlet property="inputTextView" destination="13t-vZ-pM7" id="cv6-Wh-nWy"/>
                         <outlet property="instructionsTableView" destination="QUq-Yd-9ri" id="UHx-mt-njx"/>
@@ -696,5 +669,6 @@ fim.</mutableString>
         <image name="toolbar-play" width="67.5" height="67.5"/>
         <image name="toolbar-right-filled" width="100" height="81"/>
         <image name="toolbar-right-unfilled" width="100" height="81"/>
+        <image name="toolbar-share" width="180" height="180"/>
     </resources>
 </document>
