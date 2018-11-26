@@ -11,6 +11,7 @@ import UIKit
 final class InstructionCell : UITableViewCell {
     @IBOutlet private var breakpointButton: UIButton!
     @IBOutlet private var label: UILabel!
+    @IBOutlet private var indexLabel: UILabel!
 
     static let reuseIdentifier = "InstructionCell"
 
@@ -34,6 +35,7 @@ final class InstructionCell : UITableViewCell {
             }
         }()
         breakpointButton.isSelected = Engine.shared.hasBreakpoint(at: line)
+        indexLabel.text = "\(line)"
     }
 
     override func prepareForReuse() {
