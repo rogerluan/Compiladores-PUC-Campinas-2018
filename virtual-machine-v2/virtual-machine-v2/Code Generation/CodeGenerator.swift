@@ -40,8 +40,8 @@ final class CodeGenerator {
             case .operator(let `operator`):
                 switch `operator` {
                 case .unaryPlus: break // No-op
-                case .unaryMinus: generateInstruction(.negate)
-                case .not: generateInstruction(.invert)
+                case .unaryMinus: generateInstruction(.invert)
+                case .not: generateInstruction(.negate)
                 case .multiplication: generateInstruction(.multiply)
                 case .division: generateInstruction(.divide)
                 case .sum: generateInstruction(.add)
