@@ -122,7 +122,7 @@ final class SyntacticAnalyzer {
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 while let token = self.token, token.symbol == .s_identifier {
-                    variableCount += try analyzeVariables(localVariableCount: variableCount)
+                    variableCount = try analyzeVariables(localVariableCount: variableCount)
                     if let token = self.token {
                         guard token.symbol == .s_semicolon else { throw SyntacticError(expected: "`;`", butFound: token) }
                         try readNextTokenIfPossible()
