@@ -59,6 +59,10 @@ final class ViewController: UIViewController {
             print("Finished executing with success.")
         }
         Engine.shared.readHandler = { [unowned self] in
+            // Show the debug area (in case it's hidden)
+            self.inputTextView.isHidden = false
+            self.debugAreaLeftPanelToggleButton.isSelected = true
+            // Enable input
             self.inputTextField.isUserInteractionEnabled = true
             self.inputSubmissionButton.isEnabled = true
             self.inputTextField.becomeFirstResponder()
@@ -76,6 +80,9 @@ final class ViewController: UIViewController {
             self.continueExecutionButton.isEnabled = true
             self.instructionsTableView.lineStoppedAt = line
         }
+        // Dismiss keyboard by tapping anywhere
+        let tap = UITapGestureRecognizer(target: self, action: #selector(resignFirstResponder))
+        view.addGestureRecognizer(tap)
 
         // Set up initial layout
         inputTextView.text = nil
@@ -98,6 +105,14 @@ final class ViewController: UIViewController {
         inputTextField.autocorrectionType = .no
         inputTextField.inputAssistantItem.leadingBarButtonGroups = []
         inputTextField.inputAssistantItem.trailingBarButtonGroups = []
+    }
+
+    override func resignFirstResponder() -> Bool {
+        inputTextField.resignFirstResponder()
+        for textView in [ sourceTextView, lineNumberTextView, inputTextView ] {
+            textView?.resignFirstResponder()
+        }
+        return super.resignFirstResponder()
     }
 
     @IBAction func openFilePicker(_ sender: UIButton) {
@@ -125,6 +140,9 @@ final class ViewController: UIViewController {
         if let popoverController = alert.popoverPresentationController {
             popoverController.sourceView = sender
             popoverController.sourceRect = CGRect(x: sender.bounds.midX, y: sender.bounds.maxY, width: 0, height: 0)
+        } else {
+            let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel, handler: nil)
+            alert.addAction(cancelAction)
         }
         present(alert, animated: true, completion: nil)
     }
