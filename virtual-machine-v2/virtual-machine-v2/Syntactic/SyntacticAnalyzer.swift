@@ -446,13 +446,19 @@ final class SyntacticAnalyzer {
 
     /// Analyzes a `<expressão simples>` structure defined in the formal language grammar.
     private func analyzeSimpleExpression() throws -> Type {
-        if token?.symbol == .s_plus || token?.symbol == .s_minus {
+        let didFindUnary: Bool
+        let previousToken = self.token
+        if previousToken?.symbol == .s_plus || previousToken?.symbol == .s_minus {
+            didFindUnary = true
             typeAnalyzer.analyzeTerm(token!, isUnary: true)
             try readNextTokenIfPossible()
         } else {
-            // Do nothing
+            didFindUnary = false
         }
         var lastTypeFound = try analyzeTerm()
+        if didFindUnary {
+            guard lastTypeFound == .int else { throw SemanticError(message: String(format: NSLocalizedString("Type mismatch: expected an integer term at line %ld after `%@`", comment: ""), previousToken!.line, previousToken!.lexeme)) }
+        }
         while token?.symbol == .s_plus || token?.symbol == .s_minus || token?.symbol == .s_or {
             let op = token! // Freeze
             typeAnalyzer.analyzeTerm(op)
@@ -522,7 +528,9 @@ final class SyntacticAnalyzer {
             } else if token.symbol == .s_not {
                 typeAnalyzer.analyzeTerm(token)
                 try readNextTokenIfPossible()
-                return try analyzeFactor()
+                let factorType = try analyzeFactor()
+                guard factorType == .bool else { throw SemanticError(message: String(format: NSLocalizedString("Type mismatch: expected a boolean expression at line %ld because `nao` can only be applied to boolean types.", comment: ""), token.line)) }
+                return factorType
             } else if token.symbol == .s_left_parenthesis {
                 typeAnalyzer.analyzeTerm(token)
                 // Expression between parenthesis
