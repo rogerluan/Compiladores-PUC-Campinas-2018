@@ -234,8 +234,8 @@ final class LexicalAnalyzer {
             switch lexeme {
             case ";": return .s_semicolon
             case ",": return .s_comma
-            case "(": return .s_left_parenthesis
-            case ")": return .s_right_parenthesis
+            case "(": return .s_leftParenthesis
+            case ")": return .s_rightParenthesis
             case ".": return .s_period
             default: preconditionFailure()
             }

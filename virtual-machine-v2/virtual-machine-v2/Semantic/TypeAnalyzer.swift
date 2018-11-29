@@ -22,8 +22,8 @@ final class TypeAnalyzer {
         case .s_identifier: output.append(TokenType.operand(term)) // Done
         case .s_true: output.append(TokenType.operand(term)) // Done
         case .s_false: output.append(TokenType.operand(term)) // Done
-        case .s_left_parenthesis: op = .leftParenthesis // Done
-        case .s_right_parenthesis: op = .rightParenthesis // Done
+        case .s_leftParenthesis: op = .leftParenthesis // Done
+        case .s_rightParenthesis: op = .rightParenthesis // Done
         case .s_greaterThan: op = .operator(.greaterThan)
         case .s_greaterThanThanOrEqualTo: op = .operator(.greaterThanOrEqualTo)
         case .s_equal: op = .operator(.equal)

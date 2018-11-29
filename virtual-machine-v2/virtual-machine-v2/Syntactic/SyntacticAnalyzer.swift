@@ -80,10 +80,6 @@ final class SyntacticAnalyzer {
         }
     }
 
-    func rawInstructions() -> String {
-        return generator.output
-    }
-
     /// Analyzes a `<bloco>` structure defined in the formal language grammar.
     private func analyzeBlock(context: BlockContext) throws {
         try readNextTokenIfPossible()
@@ -350,7 +346,7 @@ final class SyntacticAnalyzer {
                 // Both local and global variables can be assigned to.
                 let assignmentType = try analyzeAssignment()
                 guard variableEntry.type == assignmentType else { throw SemanticError(message: String(format: NSLocalizedString("Cannot assign value of type `%@` to type `%@` at line %ld.", comment: ""), assignmentType.description, variableEntry.type.description, token!.line)) }
-                generator.generateInstruction(.assign(index: variableEntry.index))
+                generator.generateInstruction(.assign(memoryIndex: variableEntry.index))
             } else if let functionEntry = table.searchDeclaration(of: [ .function ], with: previousToken.lexeme, in: .local) as! FunctionEntry? {
                 // When we're inside a function, a function can be assigned to, and that represents the return of the function.
                 let assignmentType = try analyzeAssignment()
@@ -531,13 +527,13 @@ final class SyntacticAnalyzer {
                 let factorType = try analyzeFactor()
                 guard factorType == .bool else { throw SemanticError(message: String(format: NSLocalizedString("Type mismatch: expected a boolean expression at line %ld because `nao` can only be applied to boolean types.", comment: ""), token.line)) }
                 return factorType
-            } else if token.symbol == .s_left_parenthesis {
+            } else if token.symbol == .s_leftParenthesis {
                 typeAnalyzer.analyzeTerm(token)
                 // Expression between parenthesis
                 try readNextTokenIfPossible()
                 let expressionType = try analyzeExpression()
                 if let token = self.token {
-                    guard token.symbol == .s_right_parenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
+                    guard token.symbol == .s_rightParenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
                     typeAnalyzer.analyzeTerm(token)
                     try readNextTokenIfPossible()
                     return expressionType
@@ -591,16 +587,16 @@ final class SyntacticAnalyzer {
         generator.generateInstruction(.read)
         try readNextTokenIfPossible()
         if let token = self.token {
-            guard token.symbol == .s_left_parenthesis else { throw SyntacticError(expected: "`(`", butFound: token) }
+            guard token.symbol == .s_leftParenthesis else { throw SyntacticError(expected: "`(`", butFound: token) }
             try readNextTokenIfPossible()
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 guard let variableEntry = table.searchDeclaration(of: [ .variable ], with: token.lexeme, in: .global) as! VariableEntry? else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` at line %ld is being used but was never defined.", comment: ""), token.lexeme, token.line)) }
                 guard variableEntry.type == .int else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` being read at line %ld must be an integer.", comment: ""), token.lexeme, token.line)) }
-                generator.generateInstruction(.assign(index: variableEntry.index))
+                generator.generateInstruction(.assign(memoryIndex: variableEntry.index))
                 try readNextTokenIfPossible()
                 if let token = self.token {
-                    guard token.symbol == .s_right_parenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
+                    guard token.symbol == .s_rightParenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
                     try readNextTokenIfPossible()
                 } else {
                     throw SyntacticError(expected: "`)`", butFoundEOF: ())
@@ -617,14 +613,14 @@ final class SyntacticAnalyzer {
     private func analyzeWrite() throws {
         try readNextTokenIfPossible()
         if let token = self.token {
-            guard token.symbol == .s_left_parenthesis else { throw SyntacticError(expected: "`(`", butFound: token) }
+            guard token.symbol == .s_leftParenthesis else { throw SyntacticError(expected: "`(`", butFound: token) }
             try readNextTokenIfPossible()
             if let token = self.token {
                 guard token.symbol == .s_identifier else { throw SyntacticError(expected: "an identifier", butFound: token) }
                 guard let typedEntry = table.searchDeclaration(of: [ .variable, .function ], with: token.lexeme, in: .global) as! TypedEntry? else { throw SemanticError(message: String(format: NSLocalizedString("Identifier `%@` at line %ld is being used but was never defined.", comment: ""), token.lexeme, token.line)) }
                 guard typedEntry.type == .int else { throw SemanticError(message: String(format: NSLocalizedString("Variable `%@` being written at line %ld must be an integer.", comment: ""), token.lexeme, token.line)) }
                 if let variableEntry = typedEntry as? VariableEntry {
-                    generator.generateInstruction(.loadValue(index: variableEntry.index))
+                    generator.generateInstruction(.loadValue(memoryIndex: variableEntry.index))
                 } else if let functionEntry = typedEntry as? FunctionEntry {
                     generator.generateInstruction(.call(label: functionEntry.label))
                 } else {
@@ -633,7 +629,7 @@ final class SyntacticAnalyzer {
                 generator.generateInstruction(.print)
                 try readNextTokenIfPossible()
                 if let token = self.token {
-                    guard token.symbol == .s_right_parenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
+                    guard token.symbol == .s_rightParenthesis else { throw SyntacticError(expected: "`)`", butFound: token) }
                     try readNextTokenIfPossible()
                 } else {
                     throw SyntacticError(expected: "`)`", butFoundEOF: ())
@@ -644,6 +640,11 @@ final class SyntacticAnalyzer {
         } else {
             throw SyntacticError(expected: "`(`", butFoundEOF: ())
         }
+    }
+
+    /// Instructions as string, generated by the code generator.
+    func rawInstructions() -> String {
+        return generator.output
     }
 
     // MARK: Utilities

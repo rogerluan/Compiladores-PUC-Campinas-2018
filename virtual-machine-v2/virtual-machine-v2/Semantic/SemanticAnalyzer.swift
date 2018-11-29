@@ -17,17 +17,17 @@ final class SemanticAnalyzer {
         var returnsExplicitly = false
         let parent: Node?
         var elseNode: Node!
-        var alwaysReturns: Bool { return returnsExplicitly || elseNode?.validate() == true }
+        var eventuallyReturns: Bool { return returnsExplicitly || elseNode?.validate() == true }
 
         init(parent: Node?) {
             self.parent = parent
         }
 
         func validate() -> Bool {
-            if alwaysReturns {
+            if eventuallyReturns {
                 return true
             } else {
-                return nodes.isEmpty ? false : nodes.allSatisfy { $0.alwaysReturns }
+                return nodes.isEmpty ? false : nodes.allSatisfy { $0.eventuallyReturns }
             }
         }
     }
@@ -44,7 +44,7 @@ final class SemanticAnalyzer {
         let elseNode = Node(parent: currentNode)
         // Assigning is not necessary if the current node returns explicitly.
         // But assigning is not allowed if the else node always returns, so we check if the current node always returns.
-        if !currentNode.alwaysReturns {
+        if !currentNode.eventuallyReturns {
             currentNode.elseNode = elseNode
         }
         currentNode.nodes += [ ifNode, elseNode ]

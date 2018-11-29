@@ -133,8 +133,8 @@ final class ViewController: UIViewController {
 
     @IBAction func run(_ sender: UIButton) {
         let alert = UIAlertController(title: NSLocalizedString("How would you like to run this code?", comment: ""), message: nil, preferredStyle: .actionSheet)
-        let stepByStepAction = UIAlertAction(title: NSLocalizedString("Step by step", comment: ""), style: .default) { [unowned self] _ in self.testAnalyzers(stepByStep: true) }
-        let freeRunningAction = UIAlertAction(title: NSLocalizedString("Free Running", comment: ""), style: .default) { [unowned self] _ in self.testAnalyzers(stepByStep: false) }
+        let stepByStepAction = UIAlertAction(title: NSLocalizedString("Step by step", comment: ""), style: .default) { [unowned self] _ in self.analyzeAndRunSourceCode(stepByStep: true) }
+        let freeRunningAction = UIAlertAction(title: NSLocalizedString("Free Running", comment: ""), style: .default) { [unowned self] _ in self.analyzeAndRunSourceCode(stepByStep: false) }
         alert.addAction(stepByStepAction)
         alert.addAction(freeRunningAction)
         if let popoverController = alert.popoverPresentationController {
@@ -156,15 +156,13 @@ final class ViewController: UIViewController {
         present(shareActivity, animated: true, completion: nil)
     }
 
-    // ===========================
-    // Debugging area
-    private func testAnalyzers(stepByStep: Bool) {
+    private func analyzeAndRunSourceCode(stepByStep: Bool) {
         if let lexicalAnalyzer = LexicalAnalyzer(sourceCode: sourceTextView.text ?? ""), let syntacticAnalyzer = SyntacticAnalyzer(lexicalAnalyzer: lexicalAnalyzer) {
             do {
                 let instructions = try syntacticAnalyzer.analyzeProgram()
                 rawInstructions = syntacticAnalyzer.rawInstructions()
                 println(NSLocalizedString("✅ Lexical, Syntactic and Semantic Analysis Completed with No Errors", comment: ""))
-                testVirtualMachine(instructions: instructions, stepByStep: stepByStep)
+                runInstructions(instructions: instructions, stepByStep: stepByStep)
             } catch {
                 let error = error as! CompilerError
                 println(error.message)
@@ -183,7 +181,7 @@ final class ViewController: UIViewController {
     }
 
     /// Reads and processes instructions from the text view.
-    private func testVirtualMachine(instructions: [Instruction], stepByStep: Bool) {
+    private func runInstructions(instructions: [Instruction], stepByStep: Bool) {
         guard !instructions.isEmpty else {
             let alert = UIAlertController(title: NSLocalizedString("Failed to Compile", comment: ""), message: NSLocalizedString("The source code failed to compile or returned no instructions.", comment: ""), preferredStyle: .alert)
             let okAction = UIAlertAction(title: NSLocalizedString("Ok", comment: ""), style: .cancel, handler: nil)
@@ -204,8 +202,6 @@ final class ViewController: UIViewController {
             present(alert, animated: true, completion: nil)
         }
     }
-
-    // ===========================
 
     @IBAction func continueExecution() {
         continueExecutionButton.isEnabled = false

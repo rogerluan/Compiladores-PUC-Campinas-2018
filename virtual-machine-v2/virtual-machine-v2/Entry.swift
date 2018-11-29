@@ -40,7 +40,7 @@ protocol TypedEntry : class, Entry {
 }
 
 /// A class protocol to determine whether the entry can be called (i.e. jumped to).
-protocol CallableEntry : class {
+protocol CallableEntry : class, Entry {
     /// The label that identifies the beginning of this entry's code.
     var label: String { get set }
 }
@@ -82,7 +82,7 @@ final class VariableEntry : TypedEntry {
     }
 }
 
-final class ProcedureEntry : Entry, CallableEntry, Markable {
+final class ProcedureEntry : CallableEntry, Markable {
     var isMarked: Bool = true
     var lexeme: String
     var label: String
