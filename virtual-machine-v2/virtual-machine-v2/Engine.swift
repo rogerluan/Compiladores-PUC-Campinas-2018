@@ -13,14 +13,12 @@ final class Engine {
     static let shared = Engine()
     /// A stack that represents the memory of the virtual machine.
     var memory: [Decimal] = [] { didSet { memoryChangedHandler?() } } // Public because it's used as the MemoryTableView's data source.
-    private var delay: TimeInterval = 1
     /// Instructions to be executed and whether it has a breakpoint or not
     private var instructions: [(Instruction, Bool)] = []
     /// Memory index.
     var s: Int = 0 { didSet { memoryChangedHandler?() } }
     /// Program conter index.
     private var i: Int = 0 { didSet { programCounterChangedHandler?(i) } }
-    private lazy var throttler = Throttler(minInterval: delay)
     private var labelMap: [String:Int] = [:]
 
     var finishHandler: (() -> Void)? = nil
