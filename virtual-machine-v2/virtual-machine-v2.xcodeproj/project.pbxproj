@@ -19,7 +19,6 @@
 		C561001D21A59B2D00392861 /* CodeGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C561001C21A59B2D00392861 /* CodeGenerator.swift */; };
 		C561001F21A5A3D100392861 /* Type.swift in Sources */ = {isa = PBXBuildFile; fileRef = C561001E21A5A3D100392861 /* Type.swift */; };
 		C561002221A5D1DB00392861 /* Collection.swift in Sources */ = {isa = PBXBuildFile; fileRef = C561002121A5D1DB00392861 /* Collection.swift */; };
-		C561002421A5E2CC00392861 /* AssemblyInstruction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C561002321A5E2CC00392861 /* AssemblyInstruction.swift */; };
 		C561002621A6021200392861 /* RuntimeError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C561002521A6021200392861 /* RuntimeError.swift */; };
 		C57BAAB3212D7C9F00B8DF76 /* InstructionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAAB2212D7C9F00B8DF76 /* InstructionCell.swift */; };
 		C57BAAB5212D7CC200B8DF76 /* MemoryTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */; };
@@ -71,7 +70,6 @@
 		C561001C21A59B2D00392861 /* CodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodeGenerator.swift; sourceTree = "<group>"; };
 		C561001E21A5A3D100392861 /* Type.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Type.swift; sourceTree = "<group>"; };
 		C561002121A5D1DB00392861 /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
-		C561002321A5E2CC00392861 /* AssemblyInstruction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssemblyInstruction.swift; sourceTree = "<group>"; };
 		C561002521A6021200392861 /* RuntimeError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeError.swift; sourceTree = "<group>"; };
 		C57BAAB2212D7C9F00B8DF76 /* InstructionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstructionCell.swift; sourceTree = "<group>"; };
 		C57BAAB4212D7CC200B8DF76 /* MemoryTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemoryTableView.swift; sourceTree = "<group>"; };
@@ -187,7 +185,6 @@
 				C592598821A8B69600F5C412 /* Operator.swift */,
 				C561001E21A5A3D100392861 /* Type.swift */,
 				C54C218F2124453E00CC259B /* Instruction.swift */,
-				C561002321A5E2CC00392861 /* AssemblyInstruction.swift */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -367,7 +364,6 @@
 				C57BAAB5212D7CC200B8DF76 /* MemoryTableView.swift in Sources */,
 				C57BAAB3212D7C9F00B8DF76 /* InstructionCell.swift in Sources */,
 				C59CA0262136C5B20033B030 /* Throttler.swift in Sources */,
-				C561002421A5E2CC00392861 /* AssemblyInstruction.swift in Sources */,
 				C5B80C5F2164E03800984AC5 /* CompilerError.swift in Sources */,
 				C592598921A8B69600F5C412 /* Operator.swift in Sources */,
 				C5B80C612164E68B00984AC5 /* DocumentPicker.swift in Sources */,

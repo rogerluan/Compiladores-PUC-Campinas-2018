@@ -16,7 +16,7 @@ final class CodeGenerator {
 
     var globalVariableCount = 0
 
-    func generateInstruction(_ instruction: AssemblyInstruction) {
+    func generateInstruction(_ instruction: Instruction) {
         if instruction.hasNoArguments {
             output += instruction.opcode
         } else if instruction.hasStrictlyOneArgument {
@@ -57,18 +57,18 @@ final class CodeGenerator {
                 }
             case .operand(let operand):
                 switch operand.symbol {
-                case .s_number: generateInstruction(.loadConstant(constant: operand.lexeme))
+                case .s_number: generateInstruction(.loadConstant(Decimal(string: operand.lexeme)!)) // Lexical and syntactic analysis guarantee this lexeme converts to a valid number
                 case .s_identifier:
                     let entry = symbolTable.searchDeclaration(of: [ .variable, .function ], with: operand.lexeme, in: .global)
                     if let variableEntry = entry as? VariableEntry {
-                        generateInstruction(.loadValue(index: variableEntry.index))
+                        generateInstruction(.loadValue(memoryIndex: variableEntry.index))
                     } else if let functionEntry = entry as? FunctionEntry {
                         generateInstruction(.call(label: functionEntry.label))
                     } else {
                         preconditionFailure()
                     }
-                case .s_true: generateInstruction(.loadConstant(constant: "1"))
-                case .s_false: generateInstruction(.loadConstant(constant: "0"))
+                case .s_true: generateInstruction(.loadConstant(1))
+                case .s_false: generateInstruction(.loadConstant(0))
                 default: preconditionFailure("There shouldn't be a non-operand here.")
                 }
             }
