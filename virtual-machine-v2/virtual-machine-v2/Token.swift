@@ -41,8 +41,8 @@ struct Token : CustomDebugStringConvertible {
         case s_period
         case s_semicolon // ;
         case s_comma
-        case s_left_parenthesis
-        case s_right_parenthesis
+        case s_leftParenthesis
+        case s_rightParenthesis
         case s_greaterThan
         case s_greaterThanThanOrEqualTo
         case s_equal

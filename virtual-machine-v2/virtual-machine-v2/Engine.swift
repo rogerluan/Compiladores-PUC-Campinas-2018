@@ -13,9 +13,9 @@ final class Engine {
     static let shared = Engine()
     /// A stack that represents the memory of the virtual machine.
     var memory: [Decimal] = [] { didSet { memoryChangedHandler?() } } // Public because it's used as the MemoryTableView's data source.
-    /// Program counter, and whether it has a breakpoint or not
-    private var pc: [(Instruction, Bool)] = []
     private var delay: TimeInterval = 1
+    /// Instructions to be executed and whether it has a breakpoint or not
+    private var instructions: [(Instruction, Bool)] = []
     /// Memory index.
     var s: Int = 0 { didSet { memoryChangedHandler?() } }
     /// Program conter index.
@@ -37,13 +37,13 @@ final class Engine {
     }
 
     func setBreakpoint(active: Bool, at line: Int) {
-        guard pc.indices.contains(line) else { return }
-        pc[line].1 = active
+        guard instructions.indices.contains(line) else { return }
+        instructions[line].1 = active
     }
 
     func hasBreakpoint(at line: Int) -> Bool {
-        guard pc.indices.contains(line) else { return false }
-        return pc[line].1
+        guard instructions.indices.contains(line) else { return false }
+        return instructions[line].1
     }
 
     func execute(instructions: [Instruction], stepByStep: Bool) throws {
@@ -56,12 +56,12 @@ final class Engine {
             }
         }
         let breakpoints = Array(repeating: stepByStep, count: instructions.count)
-        pc = Array(zip(instructions, breakpoints))
+        self.instructions = Array(zip(instructions, breakpoints))
         try executeNextInstruction()
     }
 
     func executeNextInstruction() throws {
-        let nextInstruction = pc[i]
+        let nextInstruction = instructions[i]
         if nextInstruction.1 {
             // This instruction has a breakpoint, wait to execute it
             executionPausedHandler?(i)
@@ -71,7 +71,7 @@ final class Engine {
     }
 
     func continueExecution() throws {
-        let nextInstruction = pc[i]
+        let nextInstruction = instructions[i]
         try execute(instruction: nextInstruction.0)
     }
 
@@ -229,7 +229,7 @@ final class Engine {
     // MARK: Convenience
     private func reset() {
         memory = []
-        pc = []
+        instructions = []
         s = 0
         i = 0
         labelMap = [:]
