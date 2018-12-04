@@ -28,8 +28,10 @@ final class SyntacticAnalyzer {
     private var branchLabel: String {
         get { _branchLabelCount += 1; return "L\(_branchLabelCount)" }
     }
-    /// Whether the semantic analyzer is currently performing analysis inside a function.
-    private var functionAnalysisTuple: (memoryHead: Int?, length: Int?)? = nil
+    /// Each element of this array consists of a function in which the compiler is currently analyzing.
+    /// So, if this array is empty, it's not analyzing a function, if it has 1 entry, it's analyzing 1 function,
+    /// and for each element, it's a nested function that it is analyzing.
+    private var functionAnalysisTuples: [(memoryHead: Int?, length: Int?)] = []
 
     /// Initializes a new instance of
     ///
@@ -89,10 +91,10 @@ final class SyntacticAnalyzer {
             generator.generateInstruction(.alloc(memoryHead: globalVariableCount, length: variableCount))
             generator.globalVariableCount += variableCount
             if context == .function {
-                functionAnalysisTuple = (globalVariableCount, variableCount)
+                functionAnalysisTuples += [(globalVariableCount, variableCount)]
             }
         } else if context == .function {
-            functionAnalysisTuple = (nil, nil)
+            functionAnalysisTuples += [(nil, nil)]
         }
         try analyzeSubroutinesDeclarations()
         try analyzeCommands()
@@ -276,7 +278,7 @@ final class SyntacticAnalyzer {
                         // Do nothing
                     }
                     guard semanticAnalyzer.validate() else { throw SemanticError(message: String(format: NSLocalizedString("Missing return in a function declared at line %ld, expected to return `%@`.", comment: ""), functionIdentifierToken.line, functionEntry.type.description)) }
-                    functionAnalysisTuple = nil
+                    functionAnalysisTuples.removeLast()
                     table.cleanUntilMark()
                 } else {
                     throw SyntacticError(expected: "`inteiro` or `booleano`", butFoundEOF: ())
@@ -351,9 +353,9 @@ final class SyntacticAnalyzer {
                 // When we're inside a function, a function can be assigned to, and that represents the return of the function.
                 let assignmentType = try analyzeAssignment()
                 guard functionEntry.type == assignmentType else { throw SemanticError(message: String(format: NSLocalizedString("Cannot assign value of type `%@` to type `%@` at line %ld.", comment: ""), assignmentType.description, functionEntry.type.description, token!.line)) }
-                guard let functionAnalysisTuple = functionAnalysisTuple else { throw SemanticError(message: String(format: NSLocalizedString("Cannot assign value to function identifier outside of the function scope. Assignment found at line %ld.", comment: ""), previousToken.line)) }
+                guard !functionAnalysisTuples.isEmpty else { throw SemanticError(message: String(format: NSLocalizedString("Cannot assign value to function identifier outside of the function scope. Assignment found at line %ld.", comment: ""), previousToken.line)) }
                 semanticAnalyzer.handleReturnStatementFound()
-                generator.generateInstruction(.returnFunction(memoryHead: functionAnalysisTuple.memoryHead, length: functionAnalysisTuple.length))
+                generator.generateInstruction(.returnFunction(memoryHead: functionAnalysisTuples.last!.memoryHead, length: functionAnalysisTuples.last!.length))
                 return true
             } else {
                 throw SemanticError(message: String(format: NSLocalizedString("Identifier `%@` at line %ld was used but not declared.", comment: ""), previousToken.lexeme, previousToken.line))
@@ -390,7 +392,7 @@ final class SyntacticAnalyzer {
 
     /// Analyzes a `<comando condicional>` structure defined in the formal language grammar.
     private func analyzeIf() throws {
-        if functionAnalysisTuple != nil { semanticAnalyzer.handleIfStatementFound() }
+        if !functionAnalysisTuples.isEmpty { semanticAnalyzer.handleIfStatementFound() }
         let token = self.token // Freeze only to print the line below
         try readNextTokenIfPossible()
         // Defer guarantees the type analysis is properly reset at all cases
@@ -406,16 +408,16 @@ final class SyntacticAnalyzer {
             generator.generateInstruction(.jumpIfFalse(label: elseLabel))
             try readNextTokenIfPossible()
             try analyzeSimpleCommand()
-            if functionAnalysisTuple != nil { semanticAnalyzer.handleBranchClosing() }
+            if !functionAnalysisTuples.isEmpty { semanticAnalyzer.handleBranchClosing() }
             if self.token?.symbol == .s_else {
-                if functionAnalysisTuple != nil { semanticAnalyzer.handleElseStatementFound() }
+                if !functionAnalysisTuples.isEmpty { semanticAnalyzer.handleElseStatementFound() }
                 let quitIfStatementLabel = branchLabel // Freeze
                 generator.generateInstruction(.jump(label: quitIfStatementLabel))
                 generator.generateInstruction(.null(label: elseLabel))
                 try readNextTokenIfPossible()
                 try analyzeSimpleCommand()
                 generator.generateInstruction(.null(label: quitIfStatementLabel))
-                if functionAnalysisTuple != nil { semanticAnalyzer.handleBranchClosing() }
+                if !functionAnalysisTuples.isEmpty { semanticAnalyzer.handleBranchClosing() }
             } else {
                 // The `if` being analyzed doesn't have an `else` (which's fine).
                 generator.generateInstruction(.null(label: elseLabel))
